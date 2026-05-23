@@ -11,6 +11,7 @@ on:
 jobs:
   scorecard:
     uses: vhco-pro/.github/.github/workflows/reusable-scorecard.yml@main
+    if: github.event.repository.visibility == 'public'
     # Set to true once this satellite is public. Required for results to
     # appear on the OpenSSF Scorecard dashboard.
     with:
