@@ -1,0 +1,7 @@
+{
+  "name": "CodeQL (JavaScript/TypeScript)",
+  "description": "Run CodeQL SAST analysis for JavaScript and TypeScript projects. Calls the reusable workflow in vhco-pro/.github.",
+  "iconName": "codeql-icon",
+  "categories": ["Security", "JavaScript", "TypeScript"],
+  "filePatterns": ["package.json"]
+}

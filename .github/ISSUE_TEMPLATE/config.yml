@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/vhco-pro/.github/blob/main/SECURITY.md
+    about: Please do NOT file public issues for security vulnerabilities. Use GitHub Private Vulnerability Reporting on the relevant satellite repo.
+  - name: Question or discussion
+    url: https://github.com/vhco-pro
+    about: For questions, design discussions, or "how do I" — open a Discussion on the satellite repo most relevant to your question.

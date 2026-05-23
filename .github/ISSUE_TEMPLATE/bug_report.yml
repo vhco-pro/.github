@@ -1,0 +1,76 @@
+name: Bug report
+description: Report a reproducible defect in Stackweaver
+title: "bug: "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug report. Please fill in
+        as much detail as you can — the more reproducible the report,
+        the faster a fix can land.
+
+        **Security vulnerabilities**: do NOT file them here. Use
+        [GitHub Private Vulnerability Reporting](https://github.com/vhco-pro/.github/blob/main/SECURITY.md)
+        on this repository instead.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Concise description of the bug.
+      placeholder: "When I do X, I expected Y, but Z happens instead."
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Minimal reproduction. Include exact commands, config snippets, and any IaC that triggers the bug.
+      placeholder: |
+        1. helm install stackweaver oci://ghcr.io/vhco-pro/charts/stackweaver --version X.Y.Z
+        2. Create a workspace via the API…
+        3. Observe error in orchestrator logs…
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Stackweaver version
+      description: Tag of the satellite image / chart you are running (e.g. `5.6.9`)
+    validations:
+      required: true
+
+  - type: input
+    id: deployment
+    attributes:
+      label: Deployment method
+      description: e.g. "Helm chart on EKS 1.30", "docker-compose dev stack", "kustomize on k3s"
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+      description: Paste relevant logs (redact secrets!). Use code fences.
+      render: shell
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Pre-flight checklist
+      options:
+        - label: I have searched existing issues and Discussions and confirmed this is not a duplicate.
+          required: true
+        - label: I have removed any secrets from the logs and config I am sharing.
+          required: true

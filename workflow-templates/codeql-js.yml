@@ -1,0 +1,13 @@
+name: CodeQL (JS/TS)
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "0 5 * * 1"
+
+permissions: read-all
+
+jobs:
+  codeql:
+    uses: vhco-pro/.github/.github/workflows/reusable-codeql-js.yml@main

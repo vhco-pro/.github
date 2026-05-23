@@ -1,0 +1,7 @@
+{
+  "name": "OSSF Scorecard",
+  "description": "Run the OpenSSF Scorecard analysis on this repository. Calls the reusable workflow in vhco-pro/.github.",
+  "iconName": "scorecard-icon",
+  "categories": ["Security"],
+  "filePatterns": [".*"]
+}

@@ -1,0 +1,36 @@
+name: Reusable CodeQL (JavaScript / TypeScript)
+
+on:
+  workflow_call:
+    inputs:
+      languages:
+        description: "Comma-separated CodeQL language list"
+        required: false
+        type: string
+        default: "javascript-typescript"
+
+permissions: read-all
+
+jobs:
+  analyze:
+    name: CodeQL analyze (JS/TS)
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      contents: read
+      actions: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@7211b7c8077ea37d8641b6271f6a365a22a5fbfa # v4.36.0
+        with:
+          languages: ${{ inputs.languages }}
+          build-mode: none
+
+      - name: Analyze
+        uses: github/codeql-action/analyze@7211b7c8077ea37d8641b6271f6a365a22a5fbfa # v4.36.0
+        with:
+          category: "/language:js-ts"

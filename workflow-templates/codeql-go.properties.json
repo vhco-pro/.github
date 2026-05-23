@@ -1,0 +1,7 @@
+{
+  "name": "CodeQL (Go)",
+  "description": "Run CodeQL SAST analysis for Go projects. Calls the reusable workflow in vhco-pro/.github.",
+  "iconName": "codeql-icon",
+  "categories": ["Security", "Go"],
+  "filePatterns": ["go.mod"]
+}
