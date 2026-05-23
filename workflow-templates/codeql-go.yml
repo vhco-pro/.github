@@ -9,4 +9,5 @@ on:
 
 jobs:
   codeql:
+    if: ${{ github.event.repository.visibility == 'public' }}
     uses: vhco-pro/.github/.github/workflows/reusable-codeql-go.yml@main
