@@ -16,8 +16,11 @@ the [Stackweaver](https://github.com/vhco-pro) distribution.
 keeps the report invisible to the public until a fix is published. Each
 `vhco-pro/stackweaver-*` repository has PVR enabled.
 
-**Alternative:** email `security@stackweaver.io` _(TBD — the mailbox and
-PGP key are being provisioned; use PVR until this section is updated)_.
+**Alternative:** email [`contact@vhco.pro`](mailto:contact@vhco.pro).
+PVR remains the preferred path because it keeps the report invisible
+until a fix ships. We do **not** publish a PGP key for this mailbox:
+the project follows a Sigstore-only signing policy (no long-lived
+keys), and PVR end-to-end-encrypts in transit and at rest via GitHub.
 
 We aim to:
 
@@ -81,8 +84,8 @@ cosign verify \
 gh attestation verify --owner vhco-pro --repo stackweaver-api "$IMAGE"
 ```
 
-A consumer-friendly long-form guide will appear at
-`profile/security/verifying-releases.md` with the first signed release.
+A consumer-friendly long-form guide lives at
+[`sw.vhco.pro/docs/security/verifying-releases`](https://sw.vhco.pro/docs/security/verifying-releases).
 
 ## Source-code review boundary
 
