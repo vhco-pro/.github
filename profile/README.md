@@ -1,4 +1,4 @@
-# Stackweaver™
+# Stackweaver
 
 > Multi-IaC orchestration platform — a self-hostable alternative to
 > Terraform Cloud / Ansible AWX, supporting Terraform, OpenTofu and
