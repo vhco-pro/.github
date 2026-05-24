@@ -3,7 +3,7 @@
 This policy applies to every repository in the
 [`vhco-pro`](https://github.com/vhco-pro) GitHub organisation —
 i.e. all `stackweaver-*` satellite repositories that together comprise
-the [Stackweaver](https://github.com/vhco-pro) distribution.
+the [Stackweaver™](https://github.com/vhco-pro) distribution.
 
 > **Status (2026-05-23): this document is the audit-window stub.**
 > Some sections marked _TBD_ are gated on decisions taken during the
@@ -111,3 +111,6 @@ one-off NDA — see the project maintainers for the procedure.
 ---
 
 Maintained by **VH & Co BV**. Owner: @michielvha.
+
+Stackweaver™ is a trademark of VH & Co. See [`TRADEMARK.md`](TRADEMARK.md)
+for the Trademark Policy.

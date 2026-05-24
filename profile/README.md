@@ -1,4 +1,4 @@
-# Stackweaver
+# Stackweaver™
 
 > Multi-IaC orchestration platform — a self-hostable alternative to
 > Terraform Cloud / Ansible AWX, supporting Terraform, OpenTofu and
@@ -45,3 +45,11 @@ See the helm satellite README for the full deployment guide.
   disclosing the BSL upstream linkage.
 
 The Stackweaver project is maintained by **VH & Co BV**.
+
+## Trademark
+
+Stackweaver™ is a trademark of VH & Co. The Stackweaver name and word
+mark identify the official project; the source-code licences above do
+not grant any right to use the mark in product names, hosted services,
+or company names. See the [Trademark Policy](https://github.com/vhco-pro/.github/blob/main/TRADEMARK.md)
+for the full terms and the list of permitted and prohibited uses.
