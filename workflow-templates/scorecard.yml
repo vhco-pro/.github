@@ -1,16 +1,20 @@
 name: Scorecard
 
 on:
+  workflow_dispatch:
   branch_protection_rule:
   schedule:
     - cron: "0 4 * * 1"
   push:
     branches: [main]
 
+# Least-privilege at top level; the reusable workflow raises per-job.
+permissions: {}
 
 jobs:
   scorecard:
-    uses: vhco-pro/.github/.github/workflows/reusable-scorecard.yml@main
+    uses: vhco-pro/.github/.github/workflows/reusable-scorecard.yml@1ba869a38721249cfbf6df0d2320fdb491d6a5eb # main
+    secrets: inherit
     if: github.event.repository.visibility == 'public'
     # Set to true once this satellite is public. Required for results to
     # appear on the OpenSSF Scorecard dashboard.
