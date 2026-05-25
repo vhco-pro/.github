@@ -6,6 +6,9 @@ on:
   schedule:
     - cron: "0 5 * * 1"
 
+# Least-privilege at top level; reusable workflow raises per-job.
+permissions: {}
+
 
 jobs:
   codeql:
