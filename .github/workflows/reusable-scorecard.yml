@@ -8,6 +8,10 @@ on:
         required: false
         type: boolean
         default: false
+    secrets:
+      scorecard_token:
+        description: "Fine-grained PAT with Administration:read on the target repo. Required for the Branch-Protection check to score above -1. Falls back to GITHUB_TOKEN if not supplied."
+        required: false
 
 
 jobs:
@@ -32,6 +36,7 @@ jobs:
           results_file: results.sarif
           results_format: sarif
           publish_results: ${{ inputs.publish_results }}
+          repo_token: ${{ secrets.scorecard_token || secrets.GITHUB_TOKEN }}
 
       - name: Upload SARIF as artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
