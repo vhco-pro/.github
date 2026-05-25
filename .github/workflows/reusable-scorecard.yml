@@ -9,8 +9,11 @@ on:
         type: boolean
         default: false
     secrets:
-      scorecard_token:
-        description: "Fine-grained PAT with Administration:read on the target repo. Required for the Branch-Protection check to score above -1. Falls back to GITHUB_TOKEN if not supplied."
+      release_bot_app_id:
+        description: "App ID for the stackweaver-release-bot GitHub App. When supplied together with release_bot_private_key, the workflow mints a short-lived installation token (Administration:read) so OSSF Scorecard's Branch-Protection check can read protection rules. Falls back to GITHUB_TOKEN if either secret is absent."
+        required: false
+      release_bot_private_key:
+        description: "PEM-encoded private key for the stackweaver-release-bot GitHub App. See release_bot_app_id."
         required: false
 
 
@@ -30,13 +33,26 @@ jobs:
         with:
           persist-credentials: false
 
+      # Mint a short-lived installation token from the release-bot App so
+      # Scorecard's Branch-Protection check can read protection rules
+      # (default GITHUB_TOKEN can't read classic branch protection). Step is
+      # skipped if either App secret is missing; scorecard then falls back
+      # to GITHUB_TOKEN with Branch-Protection scoring -1 as before.
+      - name: Mint release-bot installation token
+        id: app_token
+        if: ${{ secrets.release_bot_app_id != '' && secrets.release_bot_private_key != '' }}
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ secrets.release_bot_app_id }}
+          private-key: ${{ secrets.release_bot_private_key }}
+
       - name: Run Scorecard analysis
         uses: ossf/scorecard-action@4eaacf0543bb3f2c246792bd56e8cdeffafb205a # v2.4.3
         with:
           results_file: results.sarif
           results_format: sarif
           publish_results: ${{ inputs.publish_results }}
-          repo_token: ${{ secrets.scorecard_token || secrets.GITHUB_TOKEN }}
+          repo_token: ${{ steps.app_token.outputs.token || secrets.GITHUB_TOKEN }}
 
       - name: Upload SARIF as artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
