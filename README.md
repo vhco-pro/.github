@@ -1,7 +1,6 @@
 # vhco-pro/.github
 
-Org-default community-health files and reusable workflows for the
-[Stackweaver](https://github.com/vhco-pro) satellite repositories.
+Org-wide community health files and reusable workflows for all [vhco-pro](https://github.com/vhco-pro) repositories.
 
 GitHub renders files in an org's `.github` repo as defaults for every
 repo in the org that doesn't override them. The files here therefore
