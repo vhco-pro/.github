@@ -4,7 +4,7 @@ Org-wide community health files and reusable workflows for all [vhco-pro](https:
 
 GitHub renders files in an org's `.github` repo as defaults for every
 repo in the org that doesn't override them. The files here therefore
-apply to all `vhco-pro/stackweaver-*` repos automatically.
+apply to all repos automatically.
 
 ## What lives here
 
