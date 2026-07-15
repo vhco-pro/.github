@@ -4,10 +4,10 @@ on:
   workflow_call:
     inputs:
       go-version:
-        description: "Go toolchain version"
+        description: "Go toolchain version (default 'stable' = latest released Go, so the analyzer never falls behind a repo's go.mod requirement)"
         required: false
         type: string
-        default: "1.26"
+        default: "stable"
       build-mode:
         description: "CodeQL build mode for Go (autobuild | manual | none)"
         required: false
