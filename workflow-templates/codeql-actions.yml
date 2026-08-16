@@ -1,0 +1,27 @@
+name: CodeQL (Actions)
+
+# Scans this repo's own workflows and composite actions. Runs on Linux, so it is
+# cheap enough for every push and PR. Worth enabling everywhere, and especially
+# on repos that publish reusable workflows or actions consumed elsewhere.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "0 5 * * 2"
+  workflow_dispatch:
+
+# Least-privilege at top level. The job block below must still grant what the
+# reusable needs: a called workflow can never hold more than the calling job.
+permissions: {}
+
+
+jobs:
+  actions:
+    name: Actions
+    uses: vhco-pro/.github/.github/workflows/reusable-codeql-actions.yml@dd6b08eef6ffec61eeffa3d3b2f28f91658403f1 # main
+    permissions:
+      security-events: write
+      contents: read
+      actions: read

@@ -6,7 +6,8 @@ on:
   schedule:
     - cron: "0 5 * * 1"
 
-# Least-privilege at top level; reusable workflow raises per-job.
+# Least-privilege at top level. The job block below must still grant what the
+# reusable needs: a called workflow can never hold more than the calling job.
 permissions: {}
 
 
@@ -14,3 +15,7 @@ jobs:
   codeql:
     if: ${{ github.event.repository.visibility == 'public' }}
     uses: vhco-pro/.github/.github/workflows/reusable-codeql-js.yml@main
+    permissions:
+      security-events: write
+      contents: read
+      actions: read
