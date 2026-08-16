@@ -1,13 +1,36 @@
 # Trademark Notice
 
+## Scope
+
+This notice covers the trademarks of **VH & Co BV** as they appear across
+the [`vhco-pro`](https://github.com/vhco-pro) organisation.
+
+**Stackweaver™** is the one registered mark, and the Trademark Policy
+below governs its use. The other project names in this organisation —
+`distil`, `stackgraph`, `ssm-connect`, `dcv-session-agent`,
+`claude-companion`, `postbode`, `builders`, `swift-release-action`, and
+the Terraform providers — are **not** asserted as trademarks. You may use
+those names freely to refer to the projects, including in forks and
+derivative works, subject only to the ordinary requirement that you do
+not misrepresent your work as official or endorsed by VH & Co.
+
+Names appearing in these projects that belong to third parties —
+Terraform® and HashiCorp® (HashiCorp, Inc.), AWS® (Amazon.com, Inc.),
+Kubernetes® (The Linux Foundation), Claude™ (Anthropic PBC), and others —
+remain the property of their respective owners. Their use here is
+nominative: it identifies the software these projects interoperate with,
+and implies no affiliation or endorsement.
+
+## Stackweaver™
+
 Stackweaver™ is a trademark of VH & Co. All rights reserved.
 
 The Stackweaver name, word mark, and any associated logos identify the
 official Stackweaver project maintained by VH & Co. Use of the mark is
 governed by the Trademark Policy below. This policy is independent of
-the source-code licence in [`LICENSE`](LICENSE): code may be permissively
-used under the terms of that licence without that grant extending to the
-Stackweaver name or marks.
+the source-code licence in each repository's `LICENSE` file: code may be
+permissively used under the terms of that licence without that grant
+extending to the Stackweaver name or marks.
 
 ## Trademark Policy
 
@@ -65,8 +88,9 @@ name that contains the Stackweaver mark.
 If a modified version of the Stackweaver source code is redistributed,
 it must be renamed to remove the Stackweaver mark from the project
 name, package names, container image names, and Helm chart name. The
-licence in [`LICENSE`](LICENSE) governs the redistribution rights for
-the code itself; this Trademark Policy governs the separate question
+licence in the repository's `LICENSE` file governs the redistribution
+rights for the code itself; this Trademark Policy governs the separate
+question
 of whether the Stackweaver name may continue to be used to identify
 the modified work.
 

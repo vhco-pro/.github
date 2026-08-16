@@ -6,8 +6,9 @@ body:
   - type: markdown
     attributes:
       value: |
-        For substantial features, please open a Discussion first so
-        design can be hashed out before issue tracking takes over.
+        For substantial features, please open a Discussion first (where
+        this repository has them enabled) so the design can be hashed out
+        before issue tracking takes over.
 
   - type: textarea
     id: problem
@@ -41,5 +42,5 @@ body:
     attributes:
       label: Pre-flight checklist
       options:
-        - label: I have searched existing issues and Discussions and confirmed this is not a duplicate.
+        - label: I have searched existing issues and confirmed this is not a duplicate.
           required: true
