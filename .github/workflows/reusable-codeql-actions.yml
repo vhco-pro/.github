@@ -1,0 +1,43 @@
+name: Reusable CodeQL (Actions)
+
+# Scans the repository's own GitHub Actions workflows and composite actions for
+# workflow-injection, untrusted-checkout, and excessive-permission issues.
+#
+# Worth enabling on every repo in the org, and especially on repos that publish
+# reusable workflows or actions consumed elsewhere. Runs on Linux, so it is
+# cheap even where the repo's own language needs a costlier runner.
+
+on:
+  workflow_call:
+    inputs:
+      queries:
+        description: "CodeQL query suite."
+        required: false
+        type: string
+        default: security-extended
+
+jobs:
+  analyze:
+    name: CodeQL analyze (Actions)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      security-events: write
+      contents: read
+      actions: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@ff2f1c621b7f889edc0d3c761ac2e6a3f8cdb0dd # v4.37.7
+        with:
+          languages: actions
+          build-mode: none
+          queries: ${{ inputs.queries }}
+
+      - name: Analyze
+        uses: github/codeql-action/analyze@ff2f1c621b7f889edc0d3c761ac2e6a3f8cdb0dd # v4.37.7
+        with:
+          category: "/language:actions"
