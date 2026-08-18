@@ -90,7 +90,7 @@ artifacts, and credit reporters who want to be credited.
 > ongoing OSPS Baseline + OpenSSF Scorecard rollout. Tracking issue:
 > [michielvha/stackweaver#224](https://github.com/michielvha/stackweaver/issues/224).
 
-Covers the Stackweaver application (API, Orchestrator, Terraform Runner,
+Covers the Stackweaver application (API, Orchestrator, OpenTofu Runner,
 Ansible Runner, Frontend, Zitadel bootstrap, Helm chart), distributed via
 the seven `vhco-pro/stackweaver-*` satellite repositories, and the
 release pipeline behind them (the `stackweaver-release-bot` GitHub App,

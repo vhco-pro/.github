@@ -43,7 +43,7 @@ Contribution guidance in this repo has to hold for both:
 - **Stackweaver distribution mirrors** — one-way, bot-synced, no human
   PRs: `stackweaver-api`, `stackweaver-frontend`,
   `stackweaver-orchestrator`, `stackweaver-zitadel-init`,
-  `stackweaver-runner`, `stackweaver-ansible-runner`,
+  `stackweaver-opentofu-runner`, `stackweaver-ansible-runner`,
   `stackweaver-helm`. These are exactly the repos with a `sync-*.yml`
   workflow in the Stackweaver monorepo.
 

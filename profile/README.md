@@ -6,7 +6,8 @@
 ## Stackweaver - multi-IaC orchestration platform
 
 > A self-hostable alternative to Terraform Cloud / Ansible AWX,
-> supporting Terraform, OpenTofu and Ansible from a single control plane.
+> supporting OpenTofu and Ansible from a single control plane,
+> API-compatible with Terraform Cloud/Enterprise tooling.
 
 Stackweaver is developed in a private monorepo and published here as
 seven independent satellite repositories. These are one-way distribution
@@ -17,7 +18,7 @@ mirrors: they take issues, not pull requests.
 | Helm chart                | [`stackweaver-helm`](https://github.com/vhco-pro/stackweaver-helm) | [![Scorecard](https://api.scorecard.dev/projects/github.com/vhco-pro/stackweaver-helm/badge)](https://scorecard.dev/viewer/?uri=github.com/vhco-pro/stackweaver-helm) |
 | Backend API               | [`stackweaver-api`](https://github.com/vhco-pro/stackweaver-api) | [![Scorecard](https://api.scorecard.dev/projects/github.com/vhco-pro/stackweaver-api/badge)](https://scorecard.dev/viewer/?uri=github.com/vhco-pro/stackweaver-api) |
 | Orchestrator              | [`stackweaver-orchestrator`](https://github.com/vhco-pro/stackweaver-orchestrator) | [![Scorecard](https://api.scorecard.dev/projects/github.com/vhco-pro/stackweaver-orchestrator/badge)](https://scorecard.dev/viewer/?uri=github.com/vhco-pro/stackweaver-orchestrator) |
-| Terraform Runner          | [`stackweaver-runner`](https://github.com/vhco-pro/stackweaver-runner) | _n/a — private repo_ |
+| OpenTofu Runner           | [`stackweaver-opentofu-runner`](https://github.com/vhco-pro/stackweaver-opentofu-runner) | [![Scorecard](https://api.scorecard.dev/projects/github.com/vhco-pro/stackweaver-opentofu-runner/badge)](https://scorecard.dev/viewer/?uri=github.com/vhco-pro/stackweaver-opentofu-runner) |
 | Ansible Runner            | [`stackweaver-ansible-runner`](https://github.com/vhco-pro/stackweaver-ansible-runner) | [![Scorecard](https://api.scorecard.dev/projects/github.com/vhco-pro/stackweaver-ansible-runner/badge)](https://scorecard.dev/viewer/?uri=github.com/vhco-pro/stackweaver-ansible-runner) |
 | Frontend                  | [`stackweaver-frontend`](https://github.com/vhco-pro/stackweaver-frontend) | [![Scorecard](https://api.scorecard.dev/projects/github.com/vhco-pro/stackweaver-frontend/badge)](https://scorecard.dev/viewer/?uri=github.com/vhco-pro/stackweaver-frontend) |
 | Zitadel bootstrap         | [`stackweaver-zitadel-init`](https://github.com/vhco-pro/stackweaver-zitadel-init) | [![Scorecard](https://api.scorecard.dev/projects/github.com/vhco-pro/stackweaver-zitadel-init/badge)](https://scorecard.dev/viewer/?uri=github.com/vhco-pro/stackweaver-zitadel-init) |

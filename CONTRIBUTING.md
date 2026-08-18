@@ -33,7 +33,7 @@ Stackweaver itself is developed in a **private monorepo**
 (`michielvha/stackweaver`) and published to **seven public satellite
 repositories** in this org: `stackweaver-api`, `stackweaver-frontend`,
 `stackweaver-orchestrator`, `stackweaver-zitadel-init`,
-`stackweaver-runner`, `stackweaver-ansible-runner`, and
+`stackweaver-opentofu-runner`, `stackweaver-ansible-runner`, and
 `stackweaver-helm`.
 
 These satellites are one-way distribution mirrors. Their content is a
