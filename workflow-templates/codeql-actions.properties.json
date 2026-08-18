@@ -1,0 +1,7 @@
+{
+  "name": "CodeQL (Actions)",
+  "description": "Scan this repository's own GitHub Actions workflows and composite actions for injection, untrusted checkout, and over-broad permissions. Calls the reusable workflow in vhco-pro/.github. Runs on Linux.",
+  "iconName": "codeql-icon",
+  "categories": ["Security", "Actions"],
+  "filePatterns": ["action.yml", "action.yaml"]
+}

@@ -1,0 +1,45 @@
+name: CodeQL (Swift)
+
+# Swift extraction is macOS-only. macOS runners are free for public repos on
+# standard GitHub-hosted runners, but billed at a premium on private ones, hence
+# the visibility guard and the PR-plus-schedule triggers rather than every push.
+on:
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "0 5 * * 2"
+  workflow_dispatch:
+
+# Least-privilege at top level. The job block below must still grant what the
+# reusable needs: a called workflow can never hold more than the calling job.
+permissions: {}
+
+
+jobs:
+  swift:
+    name: Swift
+    if: ${{ github.event.repository.visibility == 'public' }}
+    uses: vhco-pro/.github/.github/workflows/reusable-codeql-swift.yml@dd6b08eef6ffec61eeffa3d3b2f28f91658403f1 # main
+    permissions:
+      security-events: write
+      contents: read
+      actions: read
+    with:
+      # Required. The Xcode project and scheme to build.
+      project: MyApp.xcodeproj
+      scheme: MyApp
+      # Set xcodegen: false if the .xcodeproj is committed rather than generated.
+      xcodegen: true
+      # Pin a specific image when the project needs a particular Xcode/Swift
+      # toolchain; keep it in lockstep with the repo's other macOS workflows.
+      runner: macos-latest
+      # Caches SwiftPM dependency sources. Drop if the repo has no package.
+      package-resolved: MyKit/Package.resolved
+
+  actions:
+    name: Actions
+    uses: vhco-pro/.github/.github/workflows/reusable-codeql-actions.yml@dd6b08eef6ffec61eeffa3d3b2f28f91658403f1 # main
+    permissions:
+      security-events: write
+      contents: read
+      actions: read

@@ -1,0 +1,7 @@
+{
+  "name": "CodeQL (Swift)",
+  "description": "Run CodeQL SAST analysis for Swift projects, plus this repo's own Actions code. Calls the reusable workflows in vhco-pro/.github. Swift analysis needs a macOS runner.",
+  "iconName": "codeql-icon",
+  "categories": ["Security", "Swift"],
+  "filePatterns": ["project.yml", ".*\\.xcodeproj"]
+}

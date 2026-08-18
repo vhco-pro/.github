@@ -8,7 +8,8 @@ on:
   push:
     branches: [main]
 
-# Least-privilege at top level; the reusable workflow raises per-job.
+# Least-privilege at top level. The job block below must still grant what the
+# reusable needs: a called workflow can never hold more than the calling job.
 permissions: {}
 
 jobs:
@@ -16,6 +17,11 @@ jobs:
     uses: vhco-pro/.github/.github/workflows/reusable-scorecard.yml@1ba869a38721249cfbf6df0d2320fdb491d6a5eb # main
     secrets: inherit
     if: github.event.repository.visibility == 'public'
+    permissions:
+      security-events: write
+      id-token: write
+      contents: read
+      actions: read
     # Set to true once this repository is public. Required for results to
     # appear on the OpenSSF Scorecard dashboard.
     with:
