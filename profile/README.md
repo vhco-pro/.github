@@ -3,7 +3,7 @@
 > Open-source infrastructure, IaC tooling, and developer tools from
 > **VH & Co BV**.
 
-## Stackweaver — multi-IaC orchestration platform
+## Stackweaver - multi-IaC orchestration platform
 
 > A self-hostable alternative to Terraform Cloud / Ansible AWX,
 > supporting Terraform, OpenTofu and Ansible from a single control plane.
