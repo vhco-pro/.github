@@ -8,6 +8,17 @@ on:
         required: false
         type: string
         default: "stable"
+      go-version-file:
+        description: >
+          Path to a go.mod to read the toolchain from (e.g. "backend/go.mod"). Preferred over
+          go-version: it tracks the module automatically, so the analyzer cannot drift out of
+          lockstep with what the code actually requires. When set, it wins over go-version.
+          Left empty by default because callers keep go.mod in different places (the Go
+          satellites use backend/go.mod, zitadel-init uses the repo root), so there is no safe
+          shared default.
+        required: false
+        type: string
+        default: ""
       build-mode:
         description: "CodeQL build mode for Go (autobuild | manual | none)"
         required: false
@@ -31,7 +42,10 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
-          go-version: ${{ inputs.go-version }}
+          # setup-go prefers go-version when both are supplied, which would silently defeat
+          # go-version-file. Blank go-version out whenever a file is given so the file wins.
+          go-version: ${{ inputs.go-version-file == '' && inputs.go-version || '' }}
+          go-version-file: ${{ inputs.go-version-file }}
           cache: true
 
       - name: Initialize CodeQL
