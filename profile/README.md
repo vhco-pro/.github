@@ -30,7 +30,7 @@ helm install stackweaver oci://ghcr.io/vhco-pro/charts/stackweaver --version <X.
 See the Helm satellite README for the full deployment guide, or
 [`sw.vhco.pro/docs`](https://sw.vhco.pro/docs) for the user documentation.
 
-**Ecosystem** — developed in the open, pull requests welcome:
+**Ecosystem** - developed in the open, pull requests welcome:
 
 | Repo | What it is |
 |------|------------|
@@ -41,7 +41,7 @@ See the Helm satellite README for the full deployment guide, or
 
 | Repo | What it is |
 |------|------------|
-| [`stackgraph`](https://github.com/vhco-pro/stackgraph) | Infrastructure diagram generator for OpenTofu/Terraform — production-quality architecture diagrams from state files, plan JSON, and HCL source |
+| [`stackgraph`](https://github.com/vhco-pro/stackgraph) | Infrastructure diagram generator for OpenTofu/Terraform - production-quality architecture diagrams from state files, plan JSON, and HCL source |
 | [`terraform-provider-garage`](https://github.com/vhco-pro/terraform-provider-garage) | Terraform provider for Garage, the S3-compatible object store (Admin API v2) |
 | [`builders`](https://github.com/vhco-pro/builders) | PDS-backed golden-image builders for the homelab |
 
@@ -50,22 +50,22 @@ See the Helm satellite README for the full deployment guide, or
 | Repo | What it is |
 |------|------------|
 | [`distil`](https://github.com/vhco-pro/distil) | Zero-CVE container images. Fully automated, built with apko + Wolfi |
-| [`swift-release-action`](https://github.com/vhco-pro/swift-release-action) | Reusable macOS Swift app release pipeline — reusable workflow plus a secret-free composite build/sign/package action |
+| [`swift-release-action`](https://github.com/vhco-pro/swift-release-action) | Reusable macOS Swift app release pipeline - reusable workflow plus a secret-free composite build/sign/package action |
 
 ## macOS & AWS tools
 
 | Repo | What it is |
 |------|------------|
 | [`ssm-connect`](https://github.com/vhco-pro/ssm-connect) | Config-driven macOS menu-bar app that auto-establishes AWS SSM port-forward tunnels to EC2 workstations (SSO auth, bundled session-manager-plugin) |
-| [`dcv-session-agent`](https://github.com/vhco-pro/dcv-session-agent) | On-box agent for multi-user Amazon DCV on a single self-managed EC2 host — per-user virtual sessions and AWS-SSO-identity token auth, no broker, no passwords |
-| [`claude-companion`](https://github.com/vhco-pro/claude-companion) | macOS menu-bar companion for Claude Code — tool-call auto-approval against a shared blacklist, session monitoring, usage and cost tracking |
+| [`dcv-session-agent`](https://github.com/vhco-pro/dcv-session-agent) | On-box agent for multi-user Amazon DCV on a single self-managed EC2 host - per-user virtual sessions and AWS-SSO-identity token auth, no broker, no passwords |
+| [`claude-companion`](https://github.com/vhco-pro/claude-companion) | macOS menu-bar companion for Claude Code - tool-call auto-approval against a shared blacklist, session monitoring, usage and cost tracking |
 | [`postbode`](https://github.com/vhco-pro/postbode) | Gmail to ClearFacts/QPS purchase-invoice agent, running as a macOS launchd daemon |
 | [`homebrew-tap`](https://github.com/vhco-pro/homebrew-tap) | Homebrew tap for the org's macOS tools |
 
 ## Contributing
 
 Most repositories here accept pull requests in the normal way. The seven
-`stackweaver-*` distribution mirrors are the exception — they are
+`stackweaver-*` distribution mirrors are the exception - they are
 bot-synced and take issues instead. See
 [`CONTRIBUTING.md`](https://github.com/vhco-pro/.github/blob/main/CONTRIBUTING.md)
 for which is which, and
@@ -82,7 +82,7 @@ for where to ask questions.
 
 ## Licence
 
-Licences vary per repository — check the `LICENSE` file in each. In
+Licences vary per repository - check the `LICENSE` file in each. In
 summary:
 
 - **Stackweaver core** (API, Orchestrator, Frontend, Helm chart, Zitadel
