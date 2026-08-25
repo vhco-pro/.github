@@ -91,8 +91,9 @@ artifacts, and credit reporters who want to be credited.
 > [michielvha/stackweaver#224](https://github.com/michielvha/stackweaver/issues/224).
 
 Covers the Stackweaver application (API, Orchestrator, OpenTofu Runner,
-Ansible Runner, Frontend, Zitadel bootstrap, Helm chart), distributed via
-the seven `vhco-pro/stackweaver-*` satellite repositories, and the
+Ansible Runner, Frontend, Zitadel bootstrap, secret bootstrap, Helm
+chart), distributed via the eight `vhco-pro/stackweaver-*` satellite
+repositories, and the
 release pipeline behind them (the `stackweaver-release-bot` GitHub App,
 the `sync-*.yml` workflows, the SLSA provenance attestations).
 

@@ -43,9 +43,9 @@ Contribution guidance in this repo has to hold for both:
 - **Stackweaver distribution mirrors** — one-way, bot-synced, no human
   PRs: `stackweaver-api`, `stackweaver-frontend`,
   `stackweaver-orchestrator`, `stackweaver-zitadel-init`,
-  `stackweaver-opentofu-runner`, `stackweaver-ansible-runner`,
-  `stackweaver-helm`. These are exactly the repos with a `sync-*.yml`
-  workflow in the Stackweaver monorepo.
+  `stackweaver-secrets-init`, `stackweaver-opentofu-runner`,
+  `stackweaver-ansible-runner`, `stackweaver-helm`. These are exactly the
+  repos with a `sync-*.yml` workflow in the Stackweaver monorepo.
 
 When a new repository joins the org, check that the inherited templates
 still read correctly for it, and update the lists above and in

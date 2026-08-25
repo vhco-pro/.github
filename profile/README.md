@@ -10,7 +10,7 @@
 > API-compatible with Terraform Cloud/Enterprise tooling.
 
 Stackweaver is developed in a private monorepo and published here as
-seven independent satellite repositories. These are one-way distribution
+eight independent satellite repositories. These are one-way distribution
 mirrors: they take issues, not pull requests.
 
 | Component | Repo | OpenSSF Scorecard |
@@ -22,6 +22,7 @@ mirrors: they take issues, not pull requests.
 | Ansible Runner            | [`stackweaver-ansible-runner`](https://github.com/vhco-pro/stackweaver-ansible-runner) | [![Scorecard](https://api.scorecard.dev/projects/github.com/vhco-pro/stackweaver-ansible-runner/badge)](https://scorecard.dev/viewer/?uri=github.com/vhco-pro/stackweaver-ansible-runner) |
 | Frontend                  | [`stackweaver-frontend`](https://github.com/vhco-pro/stackweaver-frontend) | [![Scorecard](https://api.scorecard.dev/projects/github.com/vhco-pro/stackweaver-frontend/badge)](https://scorecard.dev/viewer/?uri=github.com/vhco-pro/stackweaver-frontend) |
 | Zitadel bootstrap         | [`stackweaver-zitadel-init`](https://github.com/vhco-pro/stackweaver-zitadel-init) | [![Scorecard](https://api.scorecard.dev/projects/github.com/vhco-pro/stackweaver-zitadel-init/badge)](https://scorecard.dev/viewer/?uri=github.com/vhco-pro/stackweaver-zitadel-init) |
+| Secret bootstrap          | [`stackweaver-secrets-init`](https://github.com/vhco-pro/stackweaver-secrets-init) | [![Scorecard](https://api.scorecard.dev/projects/github.com/vhco-pro/stackweaver-secrets-init/badge)](https://scorecard.dev/viewer/?uri=github.com/vhco-pro/stackweaver-secrets-init) |
 
 ```bash
 helm install stackweaver oci://ghcr.io/vhco-pro/charts/stackweaver --version <X.Y.Z>
