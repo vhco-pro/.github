@@ -1,17 +1,29 @@
+<div align="center">
+
+<img src="https://raw.githubusercontent.com/vhco-pro/.github/main/profile/assets/vhco.png" alt="VH & Co" width="150" />
+
 # VH & Co
 
-> Open-source infrastructure, IaC tooling, and developer tools from
-> **VH & Co BV**.
+Open-source infrastructure and IaC tooling. Makers of [Stackweaver](https://sw.vhco.pro).
 
-## Stackweaver - multi-IaC orchestration platform
+[![Website](https://img.shields.io/badge/website-vhco.pro-06b6d4)](https://vhco.pro)
+[![Docs](https://img.shields.io/badge/docs-sw.vhco.pro-3b82f6)](https://sw.vhco.pro/docs)
+[![Contributing](https://img.shields.io/badge/contributing-guide-6366f1)](https://github.com/vhco-pro/.github/blob/main/CONTRIBUTING.md)
+[![Security](https://img.shields.io/badge/security-policy-a855f7)](https://github.com/vhco-pro/.github/blob/main/SECURITY.md)
 
-> A self-hostable alternative to Terraform Cloud / Ansible AWX,
-> supporting OpenTofu and Ansible from a single control plane,
-> API-compatible with Terraform Cloud/Enterprise tooling.
+</div>
 
-Stackweaver is developed in a private monorepo and published here as
-eight independent satellite repositories. These are one-way distribution
-mirrors: they take issues, not pull requests.
+## Stackweaver
+
+<img src="https://raw.githubusercontent.com/vhco-pro/.github/main/profile/assets/stackweaver.png" alt="Stackweaver" width="110" align="right" />
+
+A self-hostable alternative to Terraform Cloud and Ansible AWX. It runs OpenTofu and Ansible from one control plane and is API-compatible with Terraform Cloud/Enterprise tooling.
+
+```bash
+helm install stackweaver oci://ghcr.io/vhco-pro/charts/stackweaver --version <X.Y.Z>
+```
+
+[Documentation](https://sw.vhco.pro/docs) · [Deployment guide](https://github.com/vhco-pro/stackweaver-helm#readme) · [Verifying releases](https://sw.vhco.pro/docs/security/verifying-releases)
 
 | Component | Repo | OpenSSF Scorecard |
 |-----------|------|-------------------|
@@ -24,12 +36,7 @@ mirrors: they take issues, not pull requests.
 | Zitadel bootstrap         | [`stackweaver-zitadel-init`](https://github.com/vhco-pro/stackweaver-zitadel-init) | [![Scorecard](https://api.scorecard.dev/projects/github.com/vhco-pro/stackweaver-zitadel-init/badge)](https://scorecard.dev/viewer/?uri=github.com/vhco-pro/stackweaver-zitadel-init) |
 | Secret bootstrap          | [`stackweaver-secrets-init`](https://github.com/vhco-pro/stackweaver-secrets-init) | [![Scorecard](https://api.scorecard.dev/projects/github.com/vhco-pro/stackweaver-secrets-init/badge)](https://scorecard.dev/viewer/?uri=github.com/vhco-pro/stackweaver-secrets-init) |
 
-```bash
-helm install stackweaver oci://ghcr.io/vhco-pro/charts/stackweaver --version <X.Y.Z>
-```
-
-See the Helm satellite README for the full deployment guide, or
-[`sw.vhco.pro/docs`](https://sw.vhco.pro/docs) for the user documentation.
+The `stackweaver-*` repositories above are release mirrors published from the Stackweaver source tree. They take issues, not pull requests.
 
 **Ecosystem** - developed in the open, pull requests welcome:
 
@@ -37,6 +44,7 @@ See the Helm satellite README for the full deployment guide, or
 |------|------------|
 | [`terraform-provider-stackweaver`](https://github.com/vhco-pro/terraform-provider-stackweaver) | Terraform provider for Stackweaver, derived from `terraform-provider-tfe` and kept in sync with it |
 | [`stackweaver-operator`](https://github.com/vhco-pro/stackweaver-operator) | Kubernetes operator for managing Stackweaver deployments |
+| [`stackweaver-registry`](https://github.com/vhco-pro/stackweaver-registry) | Multi-format artifact registry with upstream caching, SSO and RBAC |
 
 ## Infrastructure & IaC tooling
 
@@ -63,47 +71,8 @@ See the Helm satellite README for the full deployment guide, or
 | [`postbode`](https://github.com/vhco-pro/postbode) | Gmail to ClearFacts/QPS purchase-invoice agent, running as a macOS launchd daemon |
 | [`homebrew-tap`](https://github.com/vhco-pro/homebrew-tap) | Homebrew tap for the org's macOS tools |
 
-## Contributing
+## Contributing and security
 
-Most repositories here accept pull requests in the normal way. The seven
-`stackweaver-*` distribution mirrors are the exception - they are
-bot-synced and take issues instead. See
-[`CONTRIBUTING.md`](https://github.com/vhco-pro/.github/blob/main/CONTRIBUTING.md)
-for which is which, and
-[`SUPPORT.md`](https://github.com/vhco-pro/.github/blob/main/SUPPORT.md)
-for where to ask questions.
+Pull requests are welcome everywhere except the Stackweaver release mirrors. Start with [CONTRIBUTING](https://github.com/vhco-pro/.github/blob/main/CONTRIBUTING.md), ask questions through [SUPPORT](https://github.com/vhco-pro/.github/blob/main/SUPPORT.md), and report vulnerabilities through [SECURITY](https://github.com/vhco-pro/.github/blob/main/SECURITY.md). Releases are signed with cosign keyless (Sigstore) and carry SLSA build provenance.
 
-## Security
-
-- Reporting channel, scope, and disclosure process:
-  [`SECURITY.md`](https://github.com/vhco-pro/.github/blob/main/SECURITY.md)
-- Release artifacts are signed with cosign keyless (Sigstore) and carry
-  SLSA build provenance. There are no long-lived signing keys in this
-  org.
-
-## Licence
-
-Licences vary per repository - check the `LICENSE` file in each. In
-summary:
-
-- **Stackweaver core** (API, Orchestrator, Frontend, Helm chart, Zitadel
-  init, shared `core/` module): **BSL 1.1**, with an Apache-2.0 Change
-  Date and a SaaS-exclusion Additional Use Grant.
-- **Stackweaver ecosystem tooling** (the runners): **Apache-2.0**,
-  shipping a `NOTICE` disclosing the BSL upstream linkage.
-  `terraform-provider-stackweaver` is **MPL-2.0**, inherited from its
-  upstream.
-- **Everything else**: **Apache-2.0**, except `builders` (**GPL-3.0**).
-
-## Trademark
-
-Stackweaver™ is a trademark of VH & Co. The Stackweaver name and word
-mark identify the official project; the source-code licences above do not
-grant any right to use the mark in product names, hosted services, or
-company names. See the
-[Trademark Policy](https://github.com/vhco-pro/.github/blob/main/TRADEMARK.md)
-for the full terms.
-
----
-
-Maintained by **VH & Co BV** · [contact@vhco.pro](mailto:contact@vhco.pro)
+<sub>Licences vary per repository, see each `LICENSE`. Stackweaver™ is a trademark of VH & Co ([policy](https://github.com/vhco-pro/.github/blob/main/TRADEMARK.md)). [contact@vhco.pro](mailto:contact@vhco.pro)</sub>
