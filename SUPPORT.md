@@ -9,7 +9,7 @@ Each project documents itself in its own `README.md`, plus a `docs/`
 directory where the project is large enough to need one. Stackweaver's
 user-facing documentation additionally ships in the in-app docs viewer of
 any running instance, and is published at
-[`sw.vhco.pro/docs`](https://sw.vhco.pro/docs).
+[`stackweaver.sh/docs`](https://stackweaver.sh/docs).
 
 ## Questions and discussion
 

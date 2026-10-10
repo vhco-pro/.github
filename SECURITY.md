@@ -131,7 +131,7 @@ gh attestation verify --owner vhco-pro --repo stackweaver-api "$IMAGE"
 ```
 
 A consumer-friendly long-form guide lives at
-[`sw.vhco.pro/docs/security/verifying-releases`](https://sw.vhco.pro/docs/security/verifying-releases).
+[`stackweaver.sh/docs/security/verifying-releases`](https://stackweaver.sh/docs/security/verifying-releases).
 
 ### Source-code review boundary
 

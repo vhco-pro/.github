@@ -4,10 +4,10 @@
 
 # VH & Co
 
-Open-source infrastructure and IaC tooling. Makers of [Stackweaver](https://sw.vhco.pro).
+Open-source infrastructure and IaC tooling. Makers of [Stackweaver](https://stackweaver.sh).
 
 [![Website](https://img.shields.io/badge/website-vhco.pro-06b6d4)](https://vhco.pro)
-[![Docs](https://img.shields.io/badge/docs-sw.vhco.pro-3b82f6)](https://sw.vhco.pro/docs)
+[![Docs](https://img.shields.io/badge/docs-stackweaver.sh-3b82f6)](https://stackweaver.sh/docs)
 [![Contributing](https://img.shields.io/badge/contributing-guide-6366f1)](https://github.com/vhco-pro/.github/blob/main/CONTRIBUTING.md)
 [![Security](https://img.shields.io/badge/security-policy-a855f7)](https://github.com/vhco-pro/.github/blob/main/SECURITY.md)
 
@@ -23,7 +23,7 @@ A self-hostable alternative to Terraform Cloud and Ansible AWX. It runs OpenTofu
 helm install stackweaver oci://ghcr.io/vhco-pro/charts/stackweaver --version <X.Y.Z>
 ```
 
-[Documentation](https://sw.vhco.pro/docs) · [Deployment guide](https://github.com/vhco-pro/stackweaver-helm#readme) · [Verifying releases](https://sw.vhco.pro/docs/security/verifying-releases)
+[Documentation](https://stackweaver.sh/docs) · [Deployment guide](https://github.com/vhco-pro/stackweaver-helm#readme) · [Verifying releases](https://stackweaver.sh/docs/security/verifying-releases)
 
 | Component | Repo | OpenSSF Scorecard |
 |-----------|------|-------------------|
