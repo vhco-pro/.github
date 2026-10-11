@@ -1,0 +1,54 @@
+name: Tag reusable workflows
+
+# Every Stackweaver repository calls the reusable workflows in this repository pinned to a commit
+# SHA with a version comment (`@<sha> # v1.2.3`). Dependabot can only move such a pin when there is
+# a newer version tag to compare against, so a change to a reusable workflow that is never tagged
+# never reaches the callers: until 2026-10-11 there were no tags at all, the pins sat on two-month-old
+# commits, and two satellites were still calling a revision whose default toolchain could not build
+# their module.
+#
+# This workflow cuts the next patch tag whenever a reusable workflow changes on main. A minor or
+# major bump is made by pushing that tag by hand; the next automatic tag continues from it.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/reusable-*.yml"
+
+permissions: {}
+
+concurrency:
+  group: tag-reusable-workflows
+  cancel-in-progress: false
+
+jobs:
+  tag:
+    name: Cut the next patch tag
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Tag this commit with the next patch version
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          latest="$(gh api "repos/$REPO/tags" --paginate --jq '.[] | "\(.name) \(.commit.sha)"' \
+            | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+ ' | sort -V | tail -1 || true)"
+          if [ -z "$latest" ]; then
+            echo "::error::No vMAJOR.MINOR.PATCH tag exists yet. Push the first one by hand."
+            exit 1
+          fi
+          latest_name="${latest%% *}"
+          latest_sha="${latest##* }"
+          if [ "$latest_sha" = "$SHA" ]; then
+            echo "$SHA is already tagged $latest_name; nothing to do." >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          IFS=. read -r major minor patch <<<"${latest_name#v}"
+          next="v${major}.${minor}.$((patch + 1))"
+          gh api "repos/$REPO/git/refs" -f "ref=refs/tags/$next" -f "sha=$SHA" > /dev/null
+          echo "Tagged $SHA as $next (previous: $latest_name)." >> "$GITHUB_STEP_SUMMARY"
