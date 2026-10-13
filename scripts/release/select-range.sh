@@ -8,12 +8,13 @@ else
   REVISION=$(git rev-parse "refs/tags/$TAG^{commit}")
 fi
 PREVIOUS=""
+CANDIDATES=$(git for-each-ref --merged="$REVISION" --sort=-version:refname --format='%(refname:short)' refs/tags)
 while IFS= read -r CANDIDATE; do
   if [[ "$CANDIDATE" != "$TAG" && "$CANDIDATE" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
     PREVIOUS="$CANDIDATE"
     break
   fi
-done < <(git for-each-ref --merged="$REVISION" --sort=-version:refname --format='%(refname:short)' refs/tags)
+done <<< "$CANDIDATES"
 RANGE="$REVISION"
 if [[ -n "$PREVIOUS" ]]; then
   RANGE="$PREVIOUS..$REVISION"
