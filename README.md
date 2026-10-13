@@ -31,6 +31,42 @@ belongs in a clearly-scoped section (see the "Project-specific" part of
 | `.github/workflows/reusable-*.yml`        | Reusable workflows called by repos across the org |
 | `workflow-templates/*`                    | Templates for bootstrapping new repos |
 
+## Shared releases
+
+[.github/workflows/reusable-release.yml](.github/workflows/reusable-release.yml)
+computes a GitVersion version, pushes its exact `v`-prefixed tag, and publishes
+a GitHub Release with Conventional Commit notes rendered by a checksum-verified
+`git-cliff`. It never creates or moves major/minor alias tags. A retry can finish
+publishing when a previous run already pushed the tag.
+
+This repository is public, so callers outside `vhco-pro`, including repositories
+owned by `michielvha`, can use it. The job operates on the caller repository using
+the caller's `GITHUB_TOKEN`; no personal access token or `secrets: inherit` is
+needed. Both the caller and the reusable job must grant `contents: write`.
+The caller's Actions policy must allow this repository and its public dependencies.
+
+```yaml
+name: Release
+on:
+  push:
+    branches: [main]
+permissions: {}
+concurrency:
+  group: release
+  cancel-in-progress: false
+jobs:
+  release:
+    permissions:
+      contents: write
+    uses: vhco-pro/.github/.github/workflows/reusable-release.yml@main
+```
+
+Use an immutable commit SHA in production, as with the other shared workflows.
+Optional inputs are `runs-on` (a Linux runner, default `ubuntu-latest`) and
+`dry-run` (boolean, default `false`). A dry run still computes the version and
+renders prospective notes in the job summary, but creates no tag or release.
+Workflow outputs are `version`, `tag`, `tagged`, and `release-url`.
+
 ## The two repository models
 
 Contribution guidance in this repo has to hold for both:
