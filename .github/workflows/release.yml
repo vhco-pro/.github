@@ -1,0 +1,49 @@
+name: Release shared workflows
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/reusable-*.yml
+      - .github/workflows/release.yml
+      - scripts/release/**
+      - release/**
+      - tests/**
+  pull_request:
+    paths:
+      - .github/workflows/reusable-*.yml
+      - .github/workflows/release.yml
+      - scripts/release/**
+      - release/**
+      - tests/**
+  workflow_dispatch:
+    inputs:
+      dry-run:
+        description: Preview without creating a tag or release
+        type: boolean
+        default: true
+
+permissions: {}
+
+concurrency:
+  group: shared-workflows-release-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - run: shellcheck scripts/release/*.sh tests/*.sh
+      - run: bash tests/test-release.sh
+  release:
+    needs: test
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
+    permissions:
+      contents: write
+    uses: ./.github/workflows/reusable-release.yml
+    with:
+      workflow-ref: ${{ github.sha }}
+      dry-run: ${{ github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && inputs.dry-run) }}

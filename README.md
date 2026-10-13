@@ -80,6 +80,14 @@ Use an immutable commit SHA in production, as with the other shared workflows.
 renders prospective notes in the job summary, but creates no tag or release.
 Workflow outputs are `version`, `tag`, `tagged`, and `release-url`.
 
+### Releasing this repository
+
+[.github/workflows/release.yml](.github/workflows/release.yml) calls this repo's
+own reusable release workflow at the same commit. Script checks run first.
+Relevant changes pushed to `main` publish an exact GitVersion tag and GitHub
+Release; PRs preview the same flow without publication. Manual runs default to
+dry-run. No separate patch counter or moving major/minor tagger is used.
+
 ## The two repository models
 
 Contribution guidance in this repo has to hold for both:
