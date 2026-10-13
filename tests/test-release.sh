@@ -2,6 +2,10 @@
 set -euo pipefail
 
 SOURCE_ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
+git() {
+  if [[ "${FAIL_TAG_LIST:-false}" == true && "$1" == for-each-ref ]]; then return 1; fi
+  command git "$@"
+}
 TEMP=$(mktemp -d)
 trap 'rm -rf "$TEMP"' EXIT
 export RUNNER_TEMP="$TEMP" RUNNER_ARCH=X64
@@ -57,15 +61,13 @@ bash "$SOURCE_ROOT/scripts/release/publish-release.sh"
 grep -q '^release create v2.1.0-preview.1 .*--prerelease --latest=false' "$GH_LOG"
 export RELEASE_CASE=failure
 if bash "$SOURCE_ROOT/scripts/release/publish-release.sh" >/dev/null 2>&1; then exit 1; fi
-git() {
-  if [[ "$1" == for-each-ref ]]; then return 1; fi
-  command git "$@"
-}
 export -f git
+export FAIL_TAG_LIST=true
 if git for-each-ref; then exit 1; fi
 if VERSION=2.0.0 DRY_RUN=false bash "$SOURCE_ROOT/scripts/release/select-range.sh"; then
   printf 'A failed Git tag listing must not become a successful first-release range.\n' >&2
   exit 1
 fi
+unset FAIL_TAG_LIST
 unset -f git
 printf 'Release scripts pass: first release, dry-run, reachable ranges, retry bounds, paginated existing releases, prereleases, API failure, and Git tag-list failure.\n'
