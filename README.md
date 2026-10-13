@@ -58,11 +58,24 @@ jobs:
   release:
     permissions:
       contents: write
-    uses: vhco-pro/.github/.github/workflows/reusable-release.yml@main
+    uses: vhco-pro/.github/.github/workflows/reusable-release.yml@FULL_COMMIT_SHA
+    with:
+      workflow-ref: FULL_COMMIT_SHA
 ```
 
 Use an immutable commit SHA in production, as with the other shared workflows.
-Optional inputs are `runs-on` (a Linux runner, default `ubuntu-latest`) and
+  Replace both `FULL_COMMIT_SHA` placeholders with the same verified full commit
+  SHA. The required `workflow-ref` checks out the helper scripts and config from
+  that revision; the default checkout is the caller, not this repository. Helper
+  source is moved to the runner's temporary directory before use. A placeholder
+  or moving branch is not a valid `workflow-ref`.
+
+  Release logic lives in [scripts/release/](scripts/release/) and note configuration
+  in [release/cliff.toml](release/cliff.toml). Run `bash tests/test-release.sh` and
+  shellcheck on those scripts to verify behavior without publishing. Repository
+  instructions and the central conventions start in [AGENTS.md](AGENTS.md).
+
+  Optional inputs are `runs-on` (a Linux runner, default `ubuntu-latest`) and
 `dry-run` (boolean, default `false`). A dry run still computes the version and
 renders prospective notes in the job summary, but creates no tag or release.
 Workflow outputs are `version`, `tag`, `tagged`, and `release-url`.
