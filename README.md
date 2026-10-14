@@ -39,6 +39,10 @@ a GitHub Release with Conventional Commit notes rendered by a checksum-verified
 `git-cliff`. It never creates or moves major/minor alias tags. A retry can finish
 publishing when a previous run already pushed the tag.
 
+Existing release descriptions are preserved on reruns. New notes emphasize
+consumer changes, breaking changes, and dependency updates rather than routine
+README/test/CI edits; the comparison link retains access to the full history.
+
 This repository is public, so callers outside `vhco-pro`, including repositories
 owned by `michielvha`, can use it. The job operates on the caller repository using
 the caller's `GITHUB_TOKEN`; no personal access token or `secrets: inherit` is

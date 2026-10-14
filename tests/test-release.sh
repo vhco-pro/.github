@@ -34,27 +34,44 @@ grep -q 'First capability' "$TEMP/release-notes.md"
 test -z "$(git tag)"
 git tag v1.0.0
 git commit -q --allow-empty -m 'fix: repair something'
+git commit -q --allow-empty -m 'fix: second repair'
+git commit -q --allow-empty -m 'chore(deps): update runtime dependency'
+git commit -q --allow-empty -m 'docs: routine readme change'
+git commit -q --allow-empty -m 'Update readme.md'
+git commit -q --allow-empty -m 'test: add routine test'
+git commit -q --allow-empty -m 'ci: adjust routine job'
+git commit -q --allow-empty -m 'chore: routine housekeeping'
+git commit -q --allow-empty -m 'docs!: changed compatibility requirement'
 git tag v1.0.1-preview.1
 git commit -q --allow-empty -m 'feat(api)!: incompatible API'
 render 2.0.0 true
 test "$PREVIOUS_TAG" = v1.0.0
 grep -q 'Breaking changes' "$TEMP/release-notes.md"
 grep -q 'Repair something' "$TEMP/release-notes.md"
+grep -q 'Dependencies' "$TEMP/release-notes.md"
+grep -q 'Update runtime dependency' "$TEMP/release-notes.md"
+grep -q 'Changed compatibility requirement' "$TEMP/release-notes.md"
+if grep -Eiq 'routine|Update readme.md' "$TEMP/release-notes.md"; then exit 1; fi
+awk '/^- / {if (blank_after_bullet) exit 1; bullet=1; next} /^$/ {if (bullet) blank_after_bullet=1; next} {bullet=0; blank_after_bullet=0}' "$TEMP/release-notes.md"
 grep -q 'compare/v1.0.0...v2.0.0' "$TEMP/release-notes.md"
 git tag v2.0.0
 git commit -q --allow-empty -m 'fix: must not appear in the old release'
 render 2.0.0 false
 if grep -q 'Must not appear' "$TEMP/release-notes.md"; then exit 1; fi
+git tag v2.0.1
+git commit -q --allow-empty -m 'docs: maintenance only'
+render 2.0.2 true
+grep -q '^Maintenance release\.$' "$TEMP/release-notes.md"
 
 mkdir "$TEMP/bin"
 cp "$SOURCE_ROOT/tests/mock-gh.sh" "$TEMP/bin/gh"
 chmod 755 "$TEMP/bin/gh"
 export PATH="$TEMP/bin:$PATH" GH_LOG="$TEMP/gh-log" GH_REPO=example/project NOTES="$TEMP/release-notes.md"
-export RELEASE_CASE=existing
+export RELEASE_CASE=existing TAG=v2.0.0
 : > "$GH_LOG"
 bash "$SOURCE_ROOT/scripts/release/publish-release.sh"
-grep -q '^release edit v2.0.0 ' "$GH_LOG"
-if grep -q '^release create ' "$GH_LOG"; then exit 1; fi
+grep -q '^release view v2.0.0 ' "$GH_LOG"
+if grep -Eq '^release (edit|create) ' "$GH_LOG"; then exit 1; fi
 export RELEASE_CASE=absent TAG=v2.1.0-preview.1
 : > "$GH_LOG"
 bash "$SOURCE_ROOT/scripts/release/publish-release.sh"
@@ -70,4 +87,4 @@ if VERSION=2.0.0 DRY_RUN=false bash "$SOURCE_ROOT/scripts/release/select-range.s
 fi
 unset FAIL_TAG_LIST
 unset -f git
-printf 'Release scripts pass: first release, dry-run, reachable ranges, retry bounds, paginated existing releases, prereleases, API failure, and Git tag-list failure.\n'
+printf 'Release scripts pass: compact consumer notes, dependency/breaking entries, maintenance fallback, preserved existing notes, first release, dry-run, retry bounds, prereleases, and API/Git failures.\n'

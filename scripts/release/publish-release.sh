@@ -7,7 +7,7 @@ if [[ "$TAG" == *-* ]]; then
 fi
 RELEASES=$(gh api "repos/$GH_REPO/releases" --paginate --slurp)
 if printf '%s' "$RELEASES" | jq -e --arg tag "$TAG" 'any(.[][]; .tag_name == $tag)' >/dev/null; then
-  gh release edit "$TAG" --notes-file "$NOTES"
+  echo "Release $TAG already exists; preserving its published notes."
 else
   gh release create "$TAG" --verify-tag --title "$TAG" --notes-file "$NOTES" "${FLAGS[@]}"
 fi
