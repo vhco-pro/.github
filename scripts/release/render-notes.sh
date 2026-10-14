@@ -4,8 +4,8 @@ set -euo pipefail
 NOTES="$RUNNER_TEMP/release-notes.md"
 test -f "$CONFIG_FILE"
 git-cliff --config "$CONFIG_FILE" --tag "$TAG" "$RANGE" > "$NOTES"
-if [[ ! -s "$NOTES" ]]; then
-  printf 'No commits in this release produced a note.\n' > "$NOTES"
+if ! grep -q '[^[:space:]]' "$NOTES"; then
+  printf 'Maintenance release.\n' > "$NOTES"
 fi
 if [[ -n "$PREVIOUS_TAG" ]]; then
   printf '\n**Full diff:** %s/%s/compare/%s...%s\n' \
