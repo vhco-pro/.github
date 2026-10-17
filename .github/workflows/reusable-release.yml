@@ -72,7 +72,7 @@ jobs:
         run: mv "$SOURCE_DIRECTORY" "$RUNNER_TEMP/shared-release"
       - name: Compute version and exact tag
         id: version
-        uses: michielvha/gitversion-tag-action@a4974651598b269c6c26c56fb56f9fa407278e1a # v0.1.0
+        uses: michielvha/gitversion-tag-action@8cf5869816cf71437052ac97d086e00526bf2d89 # v7.0.4
         with:
           prefix: v
           dry-run: ${{ inputs.dry-run }}
