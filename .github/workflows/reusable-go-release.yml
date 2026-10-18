@@ -1,28 +1,20 @@
-name: Reusable tag-driven Go release
+name: Reusable Go release
 
 on:
   workflow_call:
     inputs:
-      workflow-ref:
-        description: Full commit SHA matching this reusable workflow's pin
-        type: string
-        required: true
       go-version-file:
-        description: Caller module file declaring the Go toolchain
+        description: Go toolchain declaration in the caller checkout
         type: string
         default: go.mod
       golangci-lint-config:
-        description: Caller golangci-lint configuration
+        description: Caller lint configuration
         type: string
         default: .golangci.yml
     secrets:
       pgp-private-key:
-        description: GoReleaser artifact-signing key
+        description: Artifact signing key
         required: true
-    outputs:
-      release-url:
-        description: Completed GitHub Release URL
-        value: ${{ jobs.publish.outputs.release-url }}
 
 permissions: {}
 
@@ -31,92 +23,29 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  preflight:
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    permissions:
-      contents: read
-    steps:
-      - name: Checkout tagged caller commit
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          ref: ${{ github.sha }}
-          fetch-depth: 0
-          fetch-tags: true
-          persist-credentials: false
-      - name: Require an immutable helper revision
-        env:
-          WORKFLOW_REF: ${{ inputs.workflow-ref }}
-        shell: bash
-        run: '[[ "$WORKFLOW_REF" =~ ^[0-9a-f]{40}$ ]]'
-      - name: Checkout shared helpers
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          repository: vhco-pro/.github
-          ref: ${{ inputs.workflow-ref }}
-          path: .shared-go-release-${{ github.run_id }}-${{ github.run_attempt }}
-          persist-credentials: false
-          sparse-checkout: scripts/release
-      - name: Keep helpers outside caller source
-        env:
-          SOURCE_DIRECTORY: .shared-go-release-${{ github.run_id }}-${{ github.run_attempt }}
-        run: mv "$SOURCE_DIRECTORY" "$RUNNER_TEMP/shared-go-release"
-      - name: Validate release request
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: bash "$RUNNER_TEMP/shared-go-release/scripts/release/go-release.sh" preflight
-
-  verify:
-    needs: preflight
-    permissions:
-      contents: read
-    uses: ./.github/workflows/reusable-go-verify.yml
-    with:
-      go-version-file: ${{ inputs.go-version-file }}
-      golangci-lint-config: ${{ inputs.golangci-lint-config }}
-
-  publish:
-    needs: [preflight, verify]
+  release:
+    if: ${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && !github.event.deleted }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
       contents: write
-    outputs:
-      release-url: ${{ steps.publish.outputs.release-url }}
     steps:
-      - name: Checkout tagged caller commit
+      - name: Checkout tagged source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ github.sha }}
           fetch-depth: 0
           fetch-tags: true
           persist-credentials: false
-      - name: Checkout shared helpers
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Verify Go
+        id: ci
+        uses: michielvha/go-ci-action@ce2067368e871d7ad05819f20625994b30c3a824 # unreleased pilot
         with:
-          repository: vhco-pro/.github
-          ref: ${{ inputs.workflow-ref }}
-          path: .shared-go-release-${{ github.run_id }}-${{ github.run_attempt }}
-          persist-credentials: false
-          sparse-checkout: scripts/release
-      - name: Keep helpers outside caller source
-        env:
-          SOURCE_DIRECTORY: .shared-go-release-${{ github.run_id }}-${{ github.run_attempt }}
-        run: mv "$SOURCE_DIRECTORY" "$RUNNER_TEMP/shared-go-release"
-      - name: Recheck source and release state
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: bash "$RUNNER_TEMP/shared-go-release/scripts/release/go-release.sh" preflight
-      - name: Build and sign release draft
-        uses: michielvha/goreleaser-action@a86fcdf453812a9d69b85208c0cb6a1e73f136b8 # v1
+          go-version-file: ${{ inputs.go-version-file }}
+          golangci-lint-config: ${{ inputs.golangci-lint-config }}
+      - name: Build, sign, and release
+        uses: michielvha/goreleaser-action@55440c9b14819840f9b5584b6d53bbcd075ce432 # isolated next-major pilot
         with:
-          go-version: ${{ needs.verify.outputs.go-version }}
+          go-version: ${{ steps.ci.outputs.go-version }}
           github-token: ${{ github.token }}
           pgp-private-key: ${{ secrets.pgp-private-key }}
-          golangci-lint-config: ${{ inputs.golangci-lint-config }}
-          goreleaser-args: release --clean --draft
-      - name: Publish completed release
-        id: publish
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: bash "$RUNNER_TEMP/shared-go-release/scripts/release/go-release.sh" finalize
