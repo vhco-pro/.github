@@ -92,6 +92,57 @@ Relevant changes pushed to `main` publish an exact GitVersion tag and GitHub
 Release; PRs preview the same flow without publication. Manual runs default to
 dry-run. No separate patch counter or moving major/minor tagger is used.
 
+## Tag-driven Go releases
+
+[reusable-go-verify.yml](.github/workflows/reusable-go-verify.yml) runs formatting,
+module tidiness, `go vet`, tests, builds, and blocking lint checks. It reads the
+toolchain from the caller's `go.mod`. Optional inputs are `go-version-file` and
+`golangci-lint-config`.
+
+[reusable-go-release.yml](.github/workflows/reusable-go-release.yml) accepts an
+exact `v`-prefixed semantic tag push, checks out that event's commit, runs the
+shared verification workflow, and calls the existing GoReleaser action. It does
+not run GitVersion or create tags. Existing action consumers and the notes-only
+release workflow are unchanged.
+
+```yaml
+name: Go release
+on:
+  push:
+    tags: ['v*']
+permissions: {}
+jobs:
+  release:
+    permissions:
+      contents: write
+    uses: vhco-pro/.github/.github/workflows/reusable-go-release.yml@FULL_COMMIT_SHA
+    with:
+      workflow-ref: FULL_COMMIT_SHA
+    secrets:
+      pgp-private-key: ${{ secrets.PGP_PRIVATE_KEY }}
+```
+
+Replace both SHA placeholders with the same published, verified workflow commit.
+The tag glob is only an event filter; the helper rejects aliases and invalid
+semantic versions. Caller source and helper source use separate immutable refs.
+The caller supplies its GoReleaser and lint configuration, including artifact
+signing. Publication creates a draft first and exposes it only after GoReleaser
+succeeds. Prereleases never become the latest stable release.
+
+A retry can rebuild only while no release exists for the tag. An existing draft
+or public release stops the run instead of replacing its artifacts. Inspect
+partial drafts and recover their original artifacts explicitly, or release a new
+version. Never move the source tag. No cleanup runs automatically.
+
+The caller owns tag creation. Use an event-emitting GitHub App identity for
+automated tag pushes; the ordinary `GITHUB_TOKEN` does not trigger another tag-push
+workflow. Keep PR version calculation read-only. Trusted feature-branch previews
+can be requested manually and published through their prerelease tags.
+
+Run `bash tests/test-go-release.sh`, the existing release tests, and shellcheck.
+Shared release policy belongs in the [knowledge base](https://github.com/vhco-pro/docs),
+not in copies of the policy in each consumer.
+
 ## The two repository models
 
 Contribution guidance in this repo has to hold for both:
