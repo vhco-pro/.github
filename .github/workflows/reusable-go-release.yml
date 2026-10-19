@@ -39,12 +39,12 @@ jobs:
           persist-credentials: false
       - name: Verify Go
         id: ci
-        uses: michielvha/go-ci-action@9f9e49302469348fa838ec87919eedefb3fcf202 # unreleased pilot
+        uses: michielvha/go-ci-action@db3e067bb0e2d46613f06edf97873fa766594d45 # unreleased pilot
         with:
           go-version-file: ${{ inputs.go-version-file }}
           golangci-lint-config: ${{ inputs.golangci-lint-config }}
       - name: Build, sign, and release
-        uses: michielvha/goreleaser-action@63479ed6a42be6c3978c692620480ba3b4719846 # isolated next-major pilot
+        uses: michielvha/goreleaser-action@4fb6e7b500b6462a256ae390964c50b96d479098 # isolated next-major pilot
         with:
           go-version: ${{ steps.ci.outputs.go-version }}
           github-token: ${{ github.token }}
