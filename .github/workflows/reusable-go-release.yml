@@ -44,7 +44,7 @@ jobs:
           go-version-file: ${{ inputs.go-version-file }}
           golangci-lint-config: ${{ inputs.golangci-lint-config }}
       - name: Build, sign, and release
-        uses: michielvha/goreleaser-action@4fb6e7b500b6462a256ae390964c50b96d479098 # isolated next-major pilot
+        uses: michielvha/goreleaser-action@b63a4b669acbc23e6c02f87a195108affd1f9189 # isolated next-major pilot
         with:
           go-version: ${{ steps.ci.outputs.go-version }}
           github-token: ${{ github.token }}
