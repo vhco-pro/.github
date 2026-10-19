@@ -9,6 +9,8 @@ on:
       - scripts/release/**
       - release/**
       - tests/**
+      - go.mod
+      - go.sum
   pull_request:
     paths:
       - .github/workflows/reusable-*.yml
@@ -16,6 +18,8 @@ on:
       - scripts/release/**
       - release/**
       - tests/**
+      - go.mod
+      - go.sum
   workflow_dispatch:
     inputs:
       dry-run:
@@ -38,10 +42,10 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - run: shellcheck scripts/release/*.sh tests/*.sh
       - run: bash tests/test-release.sh
-      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2.2.0
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
-          bun-version: 1.4.3
-      - run: bun test tests/go-workflow.test.js
+          go-version-file: go.mod
+      - run: go test -count=1 ./...
   release:
     needs: test
     if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}

@@ -137,6 +137,12 @@ GoReleaser owns release creation, upload, and publication. Keep asset and draft
 replacement disabled in the caller's configuration and inspect partial
 publication before retrying. No cleanup is enabled by this workflow.
 
+The Go workflow contracts run with `go test -count=1 ./...` and use
+`go.yaml.in/yaml/v3`. They check action ordering, source-commit identity,
+signing-secret scope, immutable refs, and release serialization without freezing
+unrelated input additions or step labels. The notes-only release script tests
+remain Bash.
+
 ## The two repository models
 
 Contribution guidance in this repo has to hold for both:
