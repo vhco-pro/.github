@@ -10,9 +10,12 @@ sources or conflicts rather than guessing.
 ## Shared release checks
 
 Run `shellcheck scripts/release/*.sh tests/*.sh`, `bash tests/test-release.sh`,
-and `actionlint .github/workflows/reusable-release.yml .github/workflows/release.yml`.
+`go test -count=1 ./...`, and
+`actionlint .github/workflows/reusable-release.yml .github/workflows/reusable-go-release.yml .github/workflows/release.yml`.
 The tests download and verify the pinned git-cliff and use disposable Git repos
 and a mocked GitHub CLI; they do not publish a release.
+The Go workflow contracts use `go.yaml.in/yaml/v3`; no JavaScript test runtime
+is required.
 
 The reusable release workflow checks out helpers from the caller-supplied
 `workflow-ref`, which must be the same full SHA as its workflow pin. Helpers
