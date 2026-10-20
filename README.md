@@ -128,54 +128,31 @@ Use a verified commit in place of the placeholder. Optional inputs are
 the Go workflow has no scripts to retrieve. The notes-only workflow's existing
 contract is unchanged.
 
-### Checks and persistent PR previews
+### Caller checks and versioning
 
-[reusable-go-ci.yml](.github/workflows/reusable-go-ci.yml) checks the exact source
-with `go-ci-action`, then tests snapshot packaging through upstream GoReleaser
-with publication and signing disabled. It accepts no production keys.
-The caller chooses its triggers: feature-push plus PR checks, or PR-only checks.
-Set `test-release-packaging: false` for plain feature-push CI; PRs can exercise
-packaging without publication. Keep application-specific checks in caller jobs.
+CI-only jobs call `michielvha/go-ci-action` directly. Callers own their triggers,
+repository-specific checks and optional non-publishing snapshot test; there is
+no shared CI-only workflow.
 
-[reusable-version.yml](.github/workflows/reusable-version.yml) handles successful
-CI completion and read-only/manual version calculations. The caller listens to
-`workflow_run` for its complete CI workflow and exposes `workflow_dispatch` with
-`dry-run` (default `true`) and `checked-run-id` (default empty).
+[reusable-version.yml](.github/workflows/reusable-version.yml) is a thin wrapper:
+App authentication when publishing, full-history branch checkout, a checked-SHA
+guard, and one direct call to `michielvha/gitversion-tag-action`. GitVersion and
+its selected config own versions and tag pushes. The wrapper contains no PR
+policy, workflow dispatch, CI-run lookup, label audit, or custom tagging script.
 
-For an open, same-repository PR, `release:preview` remains enabled across pushes.
-After successful PR checks, the shared workflow requests a dispatch of the
-caller's Version workflow on the checked source branch. It passes the checked
-run ID automatically; the user supplies neither a SHA nor another approval.
-Main push checks follow the same branch-native dispatch path for stable tags.
+Call it after the caller's checks through native `needs:`. Pass the App client
+ID and private key explicitly, with `dry-run: false` only for an eligible
+request. Dry-run defaults to `true` and does not mint a write token.
+`config-file-path` optionally forwards an existing GitVersion config;
+`expected-sha` preserves the checked commit when a request crosses an event.
 
-The dispatch preserves GitVersion's real branch context. PR metadata only gates
-publication; GitVersion's branch configuration, history and tags determine the
-version. The workflow calls `michielvha/gitversion-tag-action` directly once,
-with `dry-run` enabled unless the request is eligible. No tagging scripts or
-internal action calls are added.
-
-Before creating a repository-scoped App token, the workflow verifies the CI
-workflow, exact source, execution of every `required-jobs` check, current open PR
-and label, and write/maintain/admin access
-of the latest label enabler. It rechecks the source and opt-in before invoking
-GitVersion. Removing the label stops future requests, not an already pushed
-tag's independent publication.
-
-The caller grants `actions: write`, `contents: read` and `pull-requests: read`,
-and passes the App client ID/private key explicitly. Request routing needs only
-the caller's `GITHUB_TOKEN`: GitHub permits it to trigger `workflow_dispatch`.
-Only the eligible tagging job creates an App token with Contents: write for
-the caller repository. Use `checks-workflow` and `version-workflow` when the
-caller uses names other than `.github/workflows/ci.yml` and `version.yml`.
-Include the caller's additional Linux/macOS, acceptance or no-network job names
-in the comma-separated `required-jobs` input. A skipped job is not a pass.
-
-Substantial publishing remains in the owned actions. GitHub API eligibility
-checks stay in `actions/github-script` to avoid a second helper checkout/pin;
-Go tests execute the actual embedded scripts through Node against mocked API
-responses. GitHub-hosted runners already provide Node.
-They cover writer permissions, persistent labels, stale heads, source/workflow
-identity, branch-native dispatch, and API failures.
+For persistent PR previews, the caller checks `release:preview` on an open
+same-repository PR. Because PR events have synthetic refs, a small `gh workflow
+run` request starts the caller's Version entry point on the actual source branch.
+It carries the checked SHA automatically. That entry point rechecks the current
+label/head and calls the thin wrapper. Main checks call the wrapper directly.
+Removing the label stops future preview requests; exact tag pushes remain the
+only artifact-publication trigger.
 
 GoReleaser owns release creation, upload, and publication. Keep asset and draft
 replacement disabled in the caller's configuration and inspect partial
