@@ -172,7 +172,8 @@ in the comma-separated `required-jobs` input. A skipped job is not a pass.
 
 Substantial publishing remains in the owned actions. GitHub API eligibility
 checks stay in `actions/github-script` to avoid a second helper checkout/pin;
-Go tests execute the actual embedded scripts against mocked API responses.
+Go tests execute the actual embedded scripts through Node against mocked API
+responses. GitHub-hosted runners already provide Node.
 They cover writer permissions, persistent labels, stale heads, source/workflow
 identity, branch-native dispatch, and API failures.
 

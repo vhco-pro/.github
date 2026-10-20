@@ -259,6 +259,9 @@ func TestEligibilityIsRechecked(t *testing.T) {
 
 func TestVersioningRemainsBranchBased(t *testing.T) {
 	w := namedWorkflow(t, "reusable-version.yml")
+	if !strings.Contains(w.Jobs["request"].If, "!inputs.dry-run") {
+		t.Error("read-only mode must also prohibit publication-request dispatches")
+	}
 	version := w.Jobs["version"]
 	checkout := version.Steps[role(t, version.Steps, "actions/checkout")]
 	if checkout.With["ref"] != "${{ github.ref }}" {

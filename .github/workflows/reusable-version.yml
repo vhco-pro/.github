@@ -31,7 +31,7 @@ permissions: {}
 
 jobs:
   request:
-    if: ${{ github.event_name == 'workflow_run' }}
+    if: ${{ github.event_name == 'workflow_run' && !inputs.dry-run }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
