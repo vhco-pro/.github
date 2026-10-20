@@ -132,10 +132,21 @@ func TestGoReleasePinsAndSerializes(t *testing.T) {
 		!strings.Contains(w.Concurrency.Group, "github.ref") {
 		t.Error("publication must serialize per repository/ref without cancelling an active release")
 	}
+
 	pinned := regexp.MustCompile(`@[0-9a-f]{40}$`)
 	for _, s := range w.Jobs["release"].Steps {
 		if !pinned.MatchString(s.Uses) {
 			t.Errorf("%q is not an immutable action implementation", s.Uses)
 		}
+	}
+
+}
+
+func TestGoReleaseUsesCICache(t *testing.T) {
+	w := readWorkflow(t)
+	steps := w.Jobs["release"].Steps
+	release := role(t, steps, "michielvha/goreleaser-action")
+	if steps[release].With["go-cache"] != "false" {
+		t.Error("the release action must reuse the Go CI cache without restoring it twice")
 	}
 }
