@@ -30,6 +30,7 @@ belongs in a clearly-scoped section (see the "Project-specific" part of
 | `.github/dependabot.yml`                  | Dependabot config for this repo itself |
 | `.github/workflows/reusable-*.yml`        | Reusable workflows called by repos across the org |
 | `workflow-templates/*`                    | Templates for bootstrapping new repos |
+| `examples/*/*/`                           | Copyable caller workflows, one folder per arrangement |
 
 ## Shared releases
 
@@ -104,102 +105,47 @@ Legacy GoReleaser consumers retain their original immutable refs. Shared
 release guidance belongs in the
 [knowledge base](https://github.com/vhco-pro/docs).
 
+### Adopt it
+
+Copy one example folder into the repository's `.github/workflows/` and replace
+`FULL_COMMIT_SHA` with a released commit of this repository. Use one arrangement
+per repository; enabling both releases the same tag twice.
+
+| Example | Use when |
+| --- | --- |
+| [examples/go-release/separate-workflows](examples/go-release/separate-workflows) | A tag push, including one pushed by hand, should start the release. Needs a GitHub App for the tag push |
+| [examples/go-release/same-workflow](examples/go-release/same-workflow) | No GitHub App. `GITHUB_TOKEN` pushes the tag and a dependent job releases it |
+
+Both run CI on branch pushes, tag `main` and open PRs labelled `release:preview`
+after the checks pass, and calculate the version only on other branches. A
+private repository that runs CI only on PRs changes the `on:` triggers; a
+`pull_request` run never tags, because it has GitHub's merge ref instead of the
+branch.
+
+`tests/examples_test.go` fails when an example passes an input, secret or reads an
+output that the shared workflows no longer declare.
+
+### The shared workflows
+
 [reusable-go-release.yml](.github/workflows/reusable-go-release.yml) checks out
-the tag event's commit, calls the Go CI action, then calls the release action
-only if CI passes. It contains no shell commands or helper checkouts.
+the tag, calls the Go CI action, then calls the release action only if CI
+passes. It runs for a tag push event, or for the `tag` input that a
+same-workflow caller passes. Other optional inputs are `go-version-file` and
+`golangci-lint-config`.
 
-```yaml
-name: Go release
-on:
-  push:
-    tags: ['v*.*.*']
-permissions: {}
-jobs:
-  release:
-    permissions:
-      contents: write
-    uses: vhco-pro/.github/.github/workflows/reusable-go-release.yml@FULL_COMMIT_SHA
-    secrets:
-      pgp-private-key: ${{ secrets.PGP_PRIVATE_KEY }}
-```
-
-Use a verified commit in place of the placeholder. Optional inputs are `tag`
-(same-workflow arrangement, below),
-`go-version-file` and `golangci-lint-config`. There is no `workflow-ref` input:
-the Go workflow has no scripts to retrieve. The notes-only workflow's existing
-contract is unchanged.
-
-### Caller checks and versioning
+[reusable-version.yml](.github/workflows/reusable-version.yml) authenticates
+when tagging, checks out the branch with full history, fails if the branch has
+moved past the checked commit, and calls `michielvha/gitversion-tag-action`.
+GitVersion and its configuration own versions and tag pushes. It inherits the
+caller job's token permissions and exposes `tagged`, `tag` and `version`.
+`dry-run` is the default and mints no token.
 
 CI-only jobs call `michielvha/go-ci-action` directly; there is no shared CI-only
-workflow. Callers own their triggers and repository-specific checks.
+workflow.
 
-[reusable-version.yml](.github/workflows/reusable-version.yml) is a thin wrapper:
-App authentication when tagging, full-history checkout of the branch, a guard
-that the branch has not moved past the checked commit, and one call to
-`michielvha/gitversion-tag-action`. GitVersion and its config own versions and
-tag pushes.
-
-Call it from a branch `push` (or `workflow_dispatch`) run, after the caller's
-checks through `needs:`, so GitVersion sees the real branch. A `pull_request`
-run has GitHub's merge ref instead. Pass `dry-run: false` only when the caller
-decides the branch should tag; dry-run is the default and mints no token.
-The wrapper inherits the caller job's token permissions and exposes `tagged`,
-`tag` and `version` outputs.
-
-Choose one of two arrangements per repository:
-
-**Separate workflows.** The caller grants `contents: read` and passes App
-credentials. The App's tag push starts the caller's tag-triggered release
-workflow, which calls `reusable-go-release.yml`. A tag pushed by hand releases
-the same way.
-
-```yaml
-  version:
-    needs: release-gate          # main, or an open release:preview PR at this commit
-    permissions:
-      contents: read
-    uses: vhco-pro/.github/.github/workflows/reusable-version.yml@FULL_COMMIT_SHA
-    with:
-      dry-run: ${{ needs.release-gate.outputs.tag != 'true' }}
-      release-app-client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
-    secrets:
-      release-app-private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
-```
-
-**Same workflow.** The caller grants `contents: write` and passes no App. A tag
-pushed with `GITHUB_TOKEN` starts no other workflow, so a dependent job releases
-the tag this run created:
-
-```yaml
-  version:
-    needs: release-gate
-    permissions:
-      contents: write
-    uses: vhco-pro/.github/.github/workflows/reusable-version.yml@FULL_COMMIT_SHA
-    with:
-      dry-run: ${{ needs.release-gate.outputs.tag != 'true' }}
-
-  release:
-    needs: version
-    if: ${{ needs.version.outputs.tagged == 'true' }}
-    permissions:
-      contents: write
-    uses: vhco-pro/.github/.github/workflows/reusable-go-release.yml@FULL_COMMIT_SHA
-    with:
-      tag: ${{ needs.version.outputs.tag }}
-    secrets:
-      pgp-private-key: ${{ secrets.PGP_PRIVATE_KEY }}
-```
-
-To retry a failed release in the same-workflow arrangement, use **Re-run failed
-jobs**: it reuses this attempt's `tagged` and `tag`. **Re-run all jobs** finds the
-tag already pushed, reports `tagged: false` and skips the release. A tag pushed
-by hand publishes nothing in this arrangement. GoReleaser never replaces an
-existing release's assets in either arrangement.
-
-Do not enable both arrangements for the same repository; one tag would be
-released twice.
+In the same-workflow arrangement, retry a failed release with **Re-run failed
+jobs**. **Re-run all jobs** finds the tag already pushed and releases nothing, and
+a tag pushed by hand publishes nothing.
 
 GoReleaser owns release creation, upload, and publication. Keep asset and draft
 replacement disabled in the caller's configuration and inspect partial

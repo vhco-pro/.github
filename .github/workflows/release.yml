@@ -9,6 +9,7 @@ on:
       - scripts/release/**
       - release/**
       - tests/**
+      - examples/**
       - go.mod
       - go.sum
   pull_request:
@@ -18,6 +19,7 @@ on:
       - scripts/release/**
       - release/**
       - tests/**
+      - examples/**
       - go.mod
       - go.sum
   workflow_dispatch:

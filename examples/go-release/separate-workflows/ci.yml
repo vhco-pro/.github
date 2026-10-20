@@ -1,0 +1,65 @@
+name: CI
+
+# Separate-workflows arrangement. Copy this folder into .github/workflows.
+# Replace FULL_COMMIT_SHA with a released commit of vhco-pro/.github.
+# Needs: RELEASE_APP_CLIENT_ID (variable), RELEASE_APP_PRIVATE_KEY (secret).
+#
+# Runs on branch pushes, not pull_request: GitVersion needs the real branch,
+# and a PR shows these push checks on its head commit.
+on:
+  push:
+    branches: ['**']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: michielvha/go-ci-action@bc485542c70d6cf51da9642c632ef268571597db # main
+
+  # Add repository-specific checks here and list them in release-gate's needs.
+
+  release-gate:
+    needs: [verify]
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    outputs:
+      tag: ${{ steps.gate.outputs.tag }}
+    steps:
+      - name: Main, or an open PR labelled release:preview at this commit
+        id: gate
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          BRANCH: ${{ github.ref_name }}
+          SHA: ${{ github.sha }}
+        run: |
+          tag=true
+          if [[ "$BRANCH" != main ]]; then
+            tag=$(gh pr list --head "$BRANCH" --state open --label release:preview \
+              --json headRefOid --jq "any(.[]; .headRefOid == \"$SHA\")")
+          fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+  version:
+    needs: release-gate
+    permissions:
+      contents: read
+    uses: vhco-pro/.github/.github/workflows/reusable-version.yml@FULL_COMMIT_SHA
+    with:
+      dry-run: ${{ needs.release-gate.outputs.tag != 'true' }}
+      release-app-client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
+    secrets:
+      release-app-private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
