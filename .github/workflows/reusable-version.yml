@@ -1,0 +1,202 @@
+name: Reusable branch versioning
+
+on:
+  workflow_call:
+    inputs:
+      dry-run:
+        type: boolean
+        default: true
+      checked-run-id:
+        description: Successful caller CI run authorizing this source
+        type: string
+        default: ''
+      checks-workflow:
+        type: string
+        default: .github/workflows/ci.yml
+      version-workflow:
+        type: string
+        default: version.yml
+      release-app-client-id:
+        type: string
+        default: ''
+    secrets:
+      release-app-private-key:
+        required: false
+
+permissions: {}
+
+jobs:
+  request:
+    if: ${{ github.event_name == 'workflow_run' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      actions: write
+      pull-requests: read
+    steps:
+      - name: Request branch-native versioning after successful checks
+        id: request
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        env:
+          CHECKS_WORKFLOW: ${{ inputs.checks-workflow }}
+          VERSION_WORKFLOW: ${{ inputs.version-workflow }}
+        with:
+          script: |
+            const run = context.payload.workflow_run;
+            const repository = `${context.repo.owner}/${context.repo.repo}`;
+            if (run.conclusion !== 'success' || run.path !== process.env.CHECKS_WORKFLOW ||
+                run.head_repository?.full_name !== repository) {
+              core.notice('No version request: checks failed or source workflow/repository is ineligible.');
+              return;
+            }
+            const stable = run.event === 'push' &&
+              run.head_branch === context.payload.repository.default_branch;
+            if (!stable) {
+              if (run.event !== 'pull_request') {
+                core.notice('Feature-push checks alone do not request prereleases.');
+                return;
+              }
+              const {data: prs} = await github.rest.pulls.list({...context.repo,
+                state: 'open', head: `${context.repo.owner}:${run.head_branch}`});
+              if (!prs.some(pr => pr.head.sha === run.head_sha &&
+                  pr.head.repo?.full_name === repository &&
+                  pr.labels.some(label => label.name === 'release:preview'))) {
+                core.notice('No current open label-enabled PR for the checked source.');
+                return;
+              }
+            }
+            await github.rest.actions.createWorkflowDispatch({...context.repo,
+              workflow_id: process.env.VERSION_WORKFLOW, ref: run.head_branch,
+              inputs: {'dry-run': 'false', 'checked-run-id': String(run.id)}});
+
+  version:
+    if: ${{ github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      actions: read
+      contents: read
+      pull-requests: read
+    concurrency:
+      group: version-${{ github.repository }}-${{ github.ref }}
+      cancel-in-progress: false
+    steps:
+      - name: Verify checked source and persistent preview opt-in
+        id: eligibility
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        env:
+          DRY_RUN: ${{ inputs.dry-run }}
+          CHECKED_RUN_ID: ${{ inputs.checked-run-id }}
+          CHECKS_WORKFLOW: ${{ inputs.checks-workflow }}
+        with:
+          script: |
+            core.setOutput('publish', 'false');
+            if (process.env.DRY_RUN === 'true') {
+              core.notice('Read-only branch version calculation; no tag token will be created.');
+              return;
+            }
+            if (!/^[1-9][0-9]*$/.test(process.env.CHECKED_RUN_ID)) {
+              throw new Error('Publication requires a successful CI run ID.');
+            }
+            const {data: run} = await github.rest.actions.getWorkflowRun({...context.repo,
+              run_id: process.env.CHECKED_RUN_ID});
+            const repository = `${context.repo.owner}/${context.repo.repo}`;
+            const branch = context.ref.replace(/^refs\/heads\//, '');
+            if (!context.ref.startsWith('refs/heads/') || run.status !== 'completed' ||
+                run.conclusion !== 'success' || run.path !== process.env.CHECKS_WORKFLOW ||
+                run.head_sha !== context.sha || run.head_branch !== branch ||
+                run.head_repository?.full_name !== repository) {
+              throw new Error('CI must have passed for this exact branch source in this repository.');
+            }
+            if (branch === context.payload.repository.default_branch) {
+              if (run.event !== 'push') throw new Error('Stable versioning requires main-branch push checks.');
+              core.setOutput('publish', 'true');
+              return;
+            }
+            if (run.event !== 'pull_request') throw new Error('Preview publication requires PR checks.');
+            if (/^release\/[0-9]+\.[0-9]+\.[0-9]+$/.test(branch)) {
+              throw new Error('The bundled GitVersion config reserves release branches for stable versions, not PR previews.');
+            }
+            const {data: prs} = await github.rest.pulls.list({...context.repo,
+              state: 'open', head: `${context.repo.owner}:${branch}`});
+            const pr = prs.find(pr => pr.head.sha === context.sha &&
+              pr.head.repo?.full_name === repository &&
+              pr.labels.some(label => label.name === 'release:preview'));
+            if (!pr) {
+              core.notice('Preview stopped: PR closed, label absent, or head changed.');
+              return;
+            }
+            const events = await github.paginate(github.rest.issues.listEvents,
+              {...context.repo, issue_number: pr.number, per_page: 100});
+            const enabled = events.filter(event =>
+              ['labeled', 'unlabeled'].includes(event.event) &&
+              event.label?.name === 'release:preview').at(-1);
+            if (enabled?.event !== 'labeled' || !enabled.actor?.login) {
+              throw new Error('Cannot establish who enabled release:preview.');
+            }
+            const {data: access} = await github.rest.repos.getCollaboratorPermissionLevel(
+              {...context.repo, username: enabled.actor.login});
+            if (!['write', 'maintain', 'admin'].includes(access.permission)) {
+              throw new Error('release:preview must be enabled by a repository writer.');
+            }
+            core.setOutput('pr-number', String(pr.number));
+            core.setOutput('label-event-id', String(enabled.id));
+            core.setOutput('publish', 'true');
+      - name: Create repository-scoped tag token
+        id: app
+        if: ${{ steps.eligibility.outputs.publish == 'true' }}
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
+        with:
+          client-id: ${{ inputs.release-app-client-id }}
+          private-key: ${{ secrets.release-app-private-key }}
+          owner: ${{ github.repository_owner }}
+          repositories: ${{ github.event.repository.name }}
+          permission-contents: write
+      - name: Checkout the selected branch for GitVersion
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.ref }}
+          fetch-depth: 0
+          fetch-tags: true
+          token: ${{ steps.app.outputs.token || github.token }}
+          persist-credentials: ${{ steps.eligibility.outputs.publish == 'true' }}
+      - name: Verify checkout has not advanced past the checked source
+        shell: bash
+        env:
+          EXPECTED_SHA: ${{ github.sha }}
+        run: test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
+      - name: Recheck eligibility before invoking GitVersion
+        id: recheck
+        if: ${{ steps.eligibility.outputs.publish == 'true' }}
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        env:
+          PR_NUMBER: ${{ steps.eligibility.outputs.pr-number }}
+          LABEL_EVENT_ID: ${{ steps.eligibility.outputs.label-event-id }}
+        with:
+          script: |
+            if (process.env.PR_NUMBER) {
+              const {data: pr} = await github.rest.pulls.get({...context.repo,
+                pull_number: Number(process.env.PR_NUMBER)});
+              const events = await github.paginate(github.rest.issues.listEvents,
+                {...context.repo, issue_number: pr.number, per_page: 100});
+              const enabled = events.filter(event =>
+                ['labeled', 'unlabeled'].includes(event.event) &&
+                event.label?.name === 'release:preview').at(-1);
+              if (pr.state !== 'open' || pr.head.sha !== context.sha ||
+                  !pr.labels.some(label => label.name === 'release:preview') ||
+                  String(enabled?.id) !== process.env.LABEL_EVENT_ID) {
+                throw new Error('Preview eligibility changed after checks; no tag will be requested.');
+              }
+            } else {
+              const {data: branch} = await github.rest.repos.getBranch({...context.repo,
+                branch: context.payload.repository.default_branch});
+              if (branch.commit.sha !== context.sha) {
+                throw new Error('Main advanced after checks; no tag will be requested.');
+              }
+            }
+            core.setOutput('publish', 'true');
+      - name: Calculate branch version and optionally push its exact tag
+        uses: michielvha/gitversion-tag-action@8cf5869816cf71437052ac97d086e00526bf2d89 # v7.0.4
+        with:
+          prefix: v
+          dry-run: ${{ inputs.dry-run || steps.eligibility.outputs.publish != 'true' || steps.recheck.outputs.publish != 'true' }}

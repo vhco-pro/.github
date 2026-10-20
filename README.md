@@ -100,8 +100,8 @@ Go checks, `michielvha/goreleaser-action` for artifact publication, and
 Shared workflows own checkout, authentication, and ordering, not copies of those
 actions' commands or calls into their internal scripts.
 
-The release-only next major is isolated from existing GoReleaser action
-consumers. Shared release guidance belongs in the
+Legacy GoReleaser consumers retain their original immutable refs. Shared
+release guidance belongs in the
 [knowledge base](https://github.com/vhco-pro/docs).
 
 [reusable-go-release.yml](.github/workflows/reusable-go-release.yml) checks out
@@ -128,10 +128,49 @@ Use a verified commit in place of the placeholder. Optional inputs are
 the Go workflow has no scripts to retrieve. The notes-only workflow's existing
 contract is unchanged.
 
-Tag creation remains separate. Call `michielvha/gitversion-tag-action` directly;
-do not invoke its internal scripts. Use an App token for automated tag pushes
-that must start the tag-event publisher. PR version previews use `dry-run: true`
-and receive no publication credentials.
+### Checks and persistent PR previews
+
+[reusable-go-ci.yml](.github/workflows/reusable-go-ci.yml) checks the exact source
+with `go-ci-action`, then tests snapshot packaging through upstream GoReleaser
+with publication and signing disabled. It accepts no production keys.
+The caller chooses its triggers: feature-push plus PR checks, or PR-only checks.
+Keep application-specific checks in caller jobs.
+
+[reusable-version.yml](.github/workflows/reusable-version.yml) handles successful
+CI completion and read-only/manual version calculations. The caller listens to
+`workflow_run` for its complete CI workflow and exposes `workflow_dispatch` with
+`dry-run` (default `true`) and `checked-run-id` (default empty).
+
+For an open, same-repository PR, `release:preview` remains enabled across pushes.
+After successful PR checks, the shared workflow requests a dispatch of the
+caller's Version workflow on the checked source branch. It passes the checked
+run ID automatically; the user supplies neither a SHA nor another approval.
+Main push checks follow the same branch-native dispatch path for stable tags.
+
+The dispatch preserves GitVersion's real branch context. PR metadata only gates
+publication; GitVersion's branch configuration, history and tags determine the
+version. The workflow calls `michielvha/gitversion-tag-action` directly once,
+with `dry-run` enabled unless the request is eligible. No tagging scripts or
+internal action calls are added.
+
+Before creating a repository-scoped App token, the workflow verifies the CI
+workflow, exact source, current open PR and label, and write/maintain/admin access
+of the latest label enabler. It rechecks the source and opt-in before invoking
+GitVersion. Removing the label stops future requests, not an already pushed
+tag's independent publication.
+
+The caller grants `actions: write`, `contents: read` and `pull-requests: read`,
+and passes the App client ID/private key explicitly. Request routing needs only
+the caller's `GITHUB_TOKEN`: GitHub permits it to trigger `workflow_dispatch`.
+Only the eligible tagging job creates an App token with Contents: write for
+the caller repository. Use `checks-workflow` and `version-workflow` when the
+caller uses names other than `.github/workflows/ci.yml` and `version.yml`.
+
+Substantial publishing remains in the owned actions. GitHub API eligibility
+checks stay in `actions/github-script` to avoid a second helper checkout/pin;
+Go tests execute the actual embedded scripts against mocked API responses.
+They cover writer permissions, persistent labels, stale heads, source/workflow
+identity, branch-native dispatch, and API failures.
 
 GoReleaser owns release creation, upload, and publication. Keep asset and draft
 replacement disabled in the caller's configuration and inspect partial
