@@ -269,6 +269,9 @@ func TestSnapshotChecksDoNotPublish(t *testing.T) {
 	w := namedWorkflow(t, "reusable-go-ci.yml")
 	job := w.Jobs["verify"]
 	snapshot := job.Steps[role(t, job.Steps, "goreleaser/goreleaser-action")]
+	if snapshot.If != "${{ inputs.test-release-packaging }}" {
+		t.Error("the caller must be able to select Go CI without snapshot packaging")
+	}
 	for _, flag := range []string{"--snapshot", "--skip=publish,sign", "--clean"} {
 		if !strings.Contains(snapshot.With["args"], flag) {
 			t.Errorf("snapshot lacks %s", flag)

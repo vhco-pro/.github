@@ -134,7 +134,8 @@ contract is unchanged.
 with `go-ci-action`, then tests snapshot packaging through upstream GoReleaser
 with publication and signing disabled. It accepts no production keys.
 The caller chooses its triggers: feature-push plus PR checks, or PR-only checks.
-Keep application-specific checks in caller jobs.
+Set `test-release-packaging: false` for plain feature-push CI; PRs can exercise
+packaging without publication. Keep application-specific checks in caller jobs.
 
 [reusable-version.yml](.github/workflows/reusable-version.yml) handles successful
 CI completion and read-only/manual version calculations. The caller listens to

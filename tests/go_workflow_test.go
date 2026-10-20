@@ -11,6 +11,7 @@ import (
 
 type step struct {
 	ID              string            `yaml:"id"`
+	If              string            `yaml:"if"`
 	Uses            string            `yaml:"uses"`
 	Run             string            `yaml:"run"`
 	ContinueOnError bool              `yaml:"continue-on-error"`

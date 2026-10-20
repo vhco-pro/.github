@@ -9,6 +9,10 @@ on:
       golangci-lint-config:
         type: string
         default: .golangci.yml
+      test-release-packaging:
+        description: Test snapshot packaging as well as Go CI
+        type: boolean
+        default: true
 
 permissions: {}
 
@@ -31,8 +35,8 @@ jobs:
           go-version-file: ${{ inputs.go-version-file }}
           golangci-lint-config: ${{ inputs.golangci-lint-config }}
       - name: Test release packaging without publication or signing
+        if: ${{ inputs.test-release-packaging }}
         uses: goreleaser/goreleaser-action@f06c13b6b1a9625abc9e6e439d9c05a8f2190e94 # v7.2.3
         with:
           version: v2.18.3
           args: release --snapshot --clean --skip=publish,sign
-
