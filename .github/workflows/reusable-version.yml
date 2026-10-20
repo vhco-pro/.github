@@ -1,5 +1,11 @@
 name: Reusable GitVersion
 
+# Permissions are inherited from the caller job, which picks the arrangement:
+# - separate workflows: contents: read plus an App token, whose tag push starts
+#   the tag-triggered release workflow;
+# - same workflow: contents: write and no App, then a dependent release job
+#   uses the tagged/tag outputs (a GITHUB_TOKEN tag push starts no workflow).
+
 on:
   workflow_call:
     inputs:
@@ -11,13 +17,22 @@ on:
         type: string
         default: ''
       release-app-client-id:
+        description: Empty pushes tags with the caller's GITHUB_TOKEN
         type: string
         default: ''
     secrets:
       release-app-private-key:
         required: false
-
-permissions: {}
+    outputs:
+      tagged:
+        description: Whether this run pushed a new exact tag
+        value: ${{ jobs.version.outputs.tagged }}
+      tag:
+        description: The exact tag pushed by this run, or empty
+        value: ${{ jobs.version.outputs.tag }}
+      version:
+        description: GitVersion SemVer for the checked commit
+        value: ${{ jobs.version.outputs.version }}
 
 concurrency:
   group: version-${{ github.repository }}-${{ github.ref }}
@@ -27,12 +42,14 @@ jobs:
   version:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    permissions:
-      contents: read
+    outputs:
+      tagged: ${{ steps.gitversion.outputs.tagged }}
+      tag: ${{ steps.gitversion.outputs.pushed-tag }}
+      version: ${{ steps.gitversion.outputs.semVer }}
     steps:
       - name: Authenticate for tag pushes
         id: app
-        if: ${{ !inputs.dry-run }}
+        if: ${{ !inputs.dry-run && inputs.release-app-client-id != '' }}
         uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3.3.0
         with:
           client-id: ${{ inputs.release-app-client-id }}
@@ -57,6 +74,7 @@ jobs:
             exit 1
           fi
       - name: Calculate version and optionally push its exact tag
+        id: gitversion
         uses: michielvha/gitversion-tag-action@8cf5869816cf71437052ac97d086e00526bf2d89 # v7.0.4
         with:
           prefix: v

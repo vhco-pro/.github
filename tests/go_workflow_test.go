@@ -16,21 +16,28 @@ type step struct {
 	Run             string            `yaml:"run"`
 	ContinueOnError bool              `yaml:"continue-on-error"`
 	With            map[string]string `yaml:"with"`
+	Env             map[string]string `yaml:"env"`
 }
 
 type workflow struct {
 	On struct {
 		WorkflowCall struct {
-			Inputs map[string]yaml.Node `yaml:"inputs"`
+			Inputs  map[string]yaml.Node `yaml:"inputs"`
+			Outputs map[string]struct {
+				Value string `yaml:"value"`
+			} `yaml:"outputs"`
 		} `yaml:"workflow_call"`
 	} `yaml:"on"`
+	Permissions yaml.Node `yaml:"permissions"`
 	Concurrency struct {
 		Group            string `yaml:"group"`
 		CancelInProgress *bool  `yaml:"cancel-in-progress"`
 	} `yaml:"concurrency"`
 	Jobs map[string]struct {
-		If    string `yaml:"if"`
-		Steps []step `yaml:"steps"`
+		If          string            `yaml:"if"`
+		Permissions yaml.Node         `yaml:"permissions"`
+		Outputs     map[string]string `yaml:"outputs"`
+		Steps       []step            `yaml:"steps"`
 	} `yaml:"jobs"`
 }
 
@@ -94,9 +101,9 @@ func TestGoReleaseBuildsEventCommit(t *testing.T) {
 	w := readWorkflow(t)
 	job := w.Jobs["release"]
 	checkout := job.Steps[role(t, job.Steps, "actions/checkout")]
-	if checkout.With["ref"] != "${{ github.sha }}" ||
+	if checkout.With["ref"] != "${{ inputs.tag && format('refs/tags/{0}', inputs.tag) || github.sha }}" ||
 		checkout.With["persist-credentials"] != "false" {
-		t.Error("checkout must use the event commit without persisting credentials")
+		t.Error("checkout must use the given tag or the tag event's commit, without persisting credentials")
 	}
 	for _, condition := range []string{
 		"github.event_name == 'push'", "refs/tags/v", "!github.event.deleted",
@@ -104,6 +111,26 @@ func TestGoReleaseBuildsEventCommit(t *testing.T) {
 		if !strings.Contains(job.If, condition) {
 			t.Errorf("publication lacks its %q event guard", condition)
 		}
+	}
+}
+
+// Same-workflow arrangement: a version job created the tag in this run, so no
+// tag event starts publication; the caller passes the tag instead.
+func TestGoReleaseAcceptsSameWorkflowTag(t *testing.T) {
+	w := readWorkflow(t)
+	if _, ok := w.On.WorkflowCall.Inputs["tag"]; !ok {
+		t.Fatal("the release workflow must accept the tag created earlier in the same run")
+	}
+	job := w.Jobs["release"]
+	if !strings.Contains(job.If, "startsWith(inputs.tag, 'v')") {
+		t.Error("a supplied tag must be an exact v-prefixed version tag")
+	}
+	release := job.Steps[role(t, job.Steps, "michielvha/goreleaser-action")]
+	if release.Env["GORELEASER_CURRENT_TAG"] != "${{ inputs.tag }}" {
+		t.Error("GoReleaser must release the supplied tag, not rediscover one on a branch run")
+	}
+	if !strings.Contains(w.Concurrency.Group, "inputs.tag") {
+		t.Error("same-workflow releases must serialize per tag, not per branch")
 	}
 }
 

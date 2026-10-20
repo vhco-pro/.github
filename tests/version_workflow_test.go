@@ -24,11 +24,11 @@ func TestVersionWorkflowPlumbing(t *testing.T) {
 	if app >= checkout || checkout >= version {
 		t.Fatal("GitVersion must follow authentication and full-history branch checkout")
 	}
-	if steps[app].If != "${{ !inputs.dry-run }}" ||
+	if steps[app].If != "${{ !inputs.dry-run && inputs.release-app-client-id != '' }}" ||
 		steps[app].With["owner"] != "${{ github.repository_owner }}" ||
 		steps[app].With["repositories"] != "${{ github.event.repository.name }}" ||
 		steps[app].With["permission-contents"] != "write" {
-		t.Error("only publishing may mint a single-repository Contents: write token")
+		t.Error("an App token is optional, single-repository Contents: write, and only for tagging")
 	}
 	if steps[checkout].With["ref"] != "${{ github.ref }}" ||
 		steps[checkout].With["fetch-depth"] != "0" ||
@@ -42,6 +42,26 @@ func TestVersionWorkflowPlumbing(t *testing.T) {
 	for _, forbidden := range []string{"github-script@", "workflow_run", "checked-run-id", "required-jobs", "git tag ", "git push "} {
 		if strings.Contains(string(raw), forbidden) {
 			t.Errorf("thin versioning must not contain %q", forbidden)
+		}
+	}
+	// Inheriting the caller's token lets it choose: read with an App token
+	// (separate workflows) or write with GITHUB_TOKEN (same workflow).
+	jobPermissions := w.Jobs["version"].Permissions
+	if !w.Permissions.IsZero() || !jobPermissions.IsZero() {
+		t.Error("the wrapper must inherit the caller job's token permissions")
+	}
+	if steps[version].ID == "" {
+		t.Fatal("the GitVersion step needs an id to expose its outputs")
+	}
+	for output, source := range map[string]string{
+		"tagged":  "tagged",
+		"tag":     "pushed-tag",
+		"version": "semVer",
+	} {
+		want := "${{ steps." + steps[version].ID + ".outputs." + source + " }}"
+		if w.Jobs["version"].Outputs[output] != want ||
+			w.On.WorkflowCall.Outputs[output].Value != "${{ jobs.version.outputs."+output+" }}" {
+			t.Errorf("same-workflow callers need the %s output from GitVersion's %s", output, source)
 		}
 	}
 }
