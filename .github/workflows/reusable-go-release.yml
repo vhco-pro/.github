@@ -44,8 +44,9 @@ jobs:
           go-version-file: ${{ inputs.go-version-file }}
           golangci-lint-config: ${{ inputs.golangci-lint-config }}
       - name: Build, sign, and release
-        uses: michielvha/goreleaser-action@503749900c38705309cf968298663349c9a2ed3c # main
+        uses: michielvha/goreleaser-action@07bb135a637b8b563473fb477e08390e2ae99c01 # main
         with:
           go-version: ${{ steps.ci.outputs.go-version }}
+          go-cache: 'false'
           github-token: ${{ github.token }}
           pgp-private-key: ${{ secrets.pgp-private-key }}
