@@ -6,10 +6,6 @@ on:
       dry-run:
         type: boolean
         default: true
-      expected-sha:
-        description: Checked source commit; defaults to the event commit
-        type: string
-        default: ''
       config-file-path:
         description: Empty uses the GitVersion action's bundled configuration
         type: string
@@ -54,7 +50,7 @@ jobs:
       - name: Keep the checked source
         shell: bash
         env:
-          EXPECTED_SHA: ${{ inputs.expected-sha || github.sha }}
+          EXPECTED_SHA: ${{ github.sha }}
         run: |
           if [[ "$(git rev-parse HEAD)" != "$EXPECTED_SHA" ]]; then
             echo "::error::The branch advanced past the checked source. Run checks on the new commit."

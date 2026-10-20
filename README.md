@@ -130,29 +130,34 @@ contract is unchanged.
 
 ### Caller checks and versioning
 
-CI-only jobs call `michielvha/go-ci-action` directly. Callers own their triggers,
-repository-specific checks and optional non-publishing snapshot test; there is
-no shared CI-only workflow.
+CI-only jobs call `michielvha/go-ci-action` directly; there is no shared CI-only
+workflow. Callers own their triggers and repository-specific checks.
 
 [reusable-version.yml](.github/workflows/reusable-version.yml) is a thin wrapper:
-App authentication when publishing, full-history branch checkout, a checked-SHA
-guard, and one direct call to `michielvha/gitversion-tag-action`. GitVersion and
-its selected config own versions and tag pushes. The wrapper contains no PR
-policy, workflow dispatch, CI-run lookup, label audit, or custom tagging script.
+App authentication when tagging, full-history checkout of the branch, a guard
+that the branch has not moved past the checked commit, and one call to
+`michielvha/gitversion-tag-action`. GitVersion and its config own versions and
+tag pushes.
 
-Call it after the caller's checks through native `needs:`. Pass the App client
-ID and private key explicitly, with `dry-run: false` only for an eligible
-request. Dry-run defaults to `true` and does not mint a write token.
-`config-file-path` optionally forwards an existing GitVersion config;
-`expected-sha` preserves the checked commit when a request crosses an event.
+Call it from a branch `push` (or `workflow_dispatch`) run, after the caller's
+checks through `needs:`, so GitVersion sees the real branch. A `pull_request`
+run has GitHub's merge ref instead. Pass `dry-run: false` only when the caller
+decides the branch should tag; dry-run is the default and mints no write token.
 
-For persistent PR previews, the caller checks `release:preview` on an open
-same-repository PR. Because PR events have synthetic refs, a small `gh workflow
-run` request starts the caller's Version entry point on the actual source branch.
-It carries the checked SHA automatically. That entry point rechecks the current
-label/head and calls the thin wrapper. Main checks call the wrapper directly.
-Removing the label stops future preview requests; exact tag pushes remain the
-only artifact-publication trigger.
+```yaml
+  version:
+    needs: release-gate          # main, or an open release:preview PR at this commit
+    permissions:
+      contents: read
+    uses: vhco-pro/.github/.github/workflows/reusable-version.yml@FULL_COMMIT_SHA
+    with:
+      dry-run: ${{ needs.release-gate.outputs.tag != 'true' }}
+      release-app-client-id: ${{ vars.RELEASE_APP_CLIENT_ID }}
+    secrets:
+      release-app-private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+```
+
+The resulting exact tag push is the only trigger for `reusable-go-release.yml`.
 
 GoReleaser owns release creation, upload, and publication. Keep asset and draft
 replacement disabled in the caller's configuration and inspect partial
