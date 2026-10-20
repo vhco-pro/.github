@@ -155,7 +155,8 @@ with `dry-run` enabled unless the request is eligible. No tagging scripts or
 internal action calls are added.
 
 Before creating a repository-scoped App token, the workflow verifies the CI
-workflow, exact source, current open PR and label, and write/maintain/admin access
+workflow, exact source, execution of every `required-jobs` check, current open PR
+and label, and write/maintain/admin access
 of the latest label enabler. It rechecks the source and opt-in before invoking
 GitVersion. Removing the label stops future requests, not an already pushed
 tag's independent publication.
@@ -166,6 +167,8 @@ the caller's `GITHUB_TOKEN`: GitHub permits it to trigger `workflow_dispatch`.
 Only the eligible tagging job creates an App token with Contents: write for
 the caller repository. Use `checks-workflow` and `version-workflow` when the
 caller uses names other than `.github/workflows/ci.yml` and `version.yml`.
+Include the caller's additional Linux/macOS, acceptance or no-network job names
+in the comma-separated `required-jobs` input. A skipped job is not a pass.
 
 Substantial publishing remains in the owned actions. GitHub API eligibility
 checks stay in `actions/github-script` to avoid a second helper checkout/pin;

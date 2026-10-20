@@ -56,6 +56,7 @@ func executePolicy(t *testing.T, id string, changes map[string]any) policyResult
 			"DRY_RUN": "false", "CHECKED_RUN_ID": "42",
 			"CHECKS_WORKFLOW":  ".github/workflows/ci.yml",
 			"VERSION_WORKFLOW": "version.yml", "PR_NUMBER": "7", "LABEL_EVENT_ID": "12",
+			"REQUIRED_JOBS": "verify / verify,checker,checker-macos",
 		},
 		"context": map[string]any{
 			"eventName": "workflow_dispatch", "sha": strings.Repeat("a", 40),
@@ -81,6 +82,11 @@ func executePolicy(t *testing.T, id string, changes map[string]any) policyResult
 			"actor": map[string]string{"login": "writer"},
 		}},
 		"permission": "write",
+		"jobs": []map[string]string{
+			{"name": "verify / verify", "conclusion": "success"},
+			{"name": "checker", "conclusion": "success"},
+			{"name": "checker-macos", "conclusion": "success"},
+		},
 	}
 	for key, value := range changes {
 		fixture[key] = value
@@ -108,6 +114,7 @@ const github = {
   rest: {
     actions: {
       getWorkflowRun: api(f.run),
+      listJobsForWorkflowRun: api({jobs: f.jobs}),
       createWorkflowDispatch: async request => { result.dispatch.push(request); },
     },
     pulls: {list: api(f.pr ? [f.pr] : []), get: api(f.pr)},
@@ -115,7 +122,10 @@ const github = {
     repos: {getCollaboratorPermissionLevel: api({permission: f.permission}),
       getBranch: api({commit: {sha: f.branchSha || f.context.sha}})},
   },
-  paginate: async (method, parameters) => (await method(parameters)).data,
+  paginate: async (method, parameters) => {
+    const data = (await method(parameters)).data;
+    return data.jobs || data;
+  },
 };
 const core = {
   setOutput: (key, value) => { result.outputs[key] = String(value); },
@@ -169,6 +179,8 @@ func TestPreviewEligibility(t *testing.T) {
 		{"missing label history is explicit", map[string]any{"events": []any{}}, false, true},
 		{"unlabel event cannot enable", map[string]any{"events": []map[string]any{{"id": 13, "event": "unlabeled", "label": map[string]string{"name": "release:preview"}}}}, false, true},
 		{"missing CI identity is explicit", map[string]any{"envPatch": map[string]string{"CHECKED_RUN_ID": ""}}, false, true},
+		{"skipped validation is not a pass", map[string]any{"jobs": []map[string]string{{"name": "verify / verify", "conclusion": "skipped"}}}, false, true},
+		{"missing platform checks block publication", map[string]any{"jobs": []map[string]string{{"name": "verify / verify", "conclusion": "success"}}}, false, true},
 		{"configured stable release branch is not a preview", map[string]any{
 			"contextPatch": map[string]any{"ref": "refs/heads/release/1.2.3"},
 			"runPatch":     map[string]any{"head_branch": "release/1.2.3"},
@@ -194,6 +206,7 @@ func TestSuccessfulChecksRequestBranchDispatch(t *testing.T) {
 		{"unlabeled PR", map[string]any{"prPatch": map[string]any{"labels": []any{}}}, false},
 		{"feature push without PR event", map[string]any{"runPatch": map[string]any{"event": "push"}}, false},
 		{"failed checks", map[string]any{"runPatch": map[string]any{"conclusion": "failure"}}, false},
+		{"all jobs skipped", map[string]any{"jobs": []any{}}, false},
 		{"wrong workflow", map[string]any{"runPatch": map[string]any{"path": ".github/workflows/other.yml"}}, false},
 		{"fork", map[string]any{"runPatch": map[string]any{"head_repository": map[string]string{"full_name": "fork/app"}}}, false},
 		{"PR closed", map[string]any{"pr": nil}, false},

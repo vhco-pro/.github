@@ -16,6 +16,10 @@ on:
       version-workflow:
         type: string
         default: version.yml
+      required-jobs:
+        description: Comma-separated CI job names that must actually pass, not be skipped
+        type: string
+        default: verify / verify
       release-app-client-id:
         type: string
         default: ''
@@ -40,6 +44,7 @@ jobs:
         env:
           CHECKS_WORKFLOW: ${{ inputs.checks-workflow }}
           VERSION_WORKFLOW: ${{ inputs.version-workflow }}
+          REQUIRED_JOBS: ${{ inputs.required-jobs }}
         with:
           script: |
             const run = context.payload.workflow_run;
@@ -47,6 +52,14 @@ jobs:
             if (run.conclusion !== 'success' || run.path !== process.env.CHECKS_WORKFLOW ||
                 run.head_repository?.full_name !== repository) {
               core.notice('No version request: checks failed or source workflow/repository is ineligible.');
+              return;
+            }
+            const jobs = await github.paginate(github.rest.actions.listJobsForWorkflowRun,
+              {...context.repo, run_id: run.id, filter: 'latest', per_page: 100});
+            const required = process.env.REQUIRED_JOBS.split(',').map(name => name.trim());
+            if (!required.every(name => name && jobs.some(job =>
+                job.name === name && job.conclusion === 'success'))) {
+              core.notice('Required CI jobs did not all execute successfully; no version request.');
               return;
             }
             const stable = run.event === 'push' &&
@@ -88,6 +101,7 @@ jobs:
           DRY_RUN: ${{ inputs.dry-run }}
           CHECKED_RUN_ID: ${{ inputs.checked-run-id }}
           CHECKS_WORKFLOW: ${{ inputs.checks-workflow }}
+          REQUIRED_JOBS: ${{ inputs.required-jobs }}
         with:
           script: |
             core.setOutput('publish', 'false');
@@ -107,6 +121,13 @@ jobs:
                 run.head_sha !== context.sha || run.head_branch !== branch ||
                 run.head_repository?.full_name !== repository) {
               throw new Error('CI must have passed for this exact branch source in this repository.');
+            }
+            const jobs = await github.paginate(github.rest.actions.listJobsForWorkflowRun,
+              {...context.repo, run_id: run.id, filter: 'latest', per_page: 100});
+            const required = process.env.REQUIRED_JOBS.split(',').map(name => name.trim());
+            if (!required.every(name => name && jobs.some(job =>
+                job.name === name && job.conclusion === 'success'))) {
+              throw new Error('Every required CI job must have executed successfully, not been skipped.');
             }
             if (branch === context.payload.repository.default_branch) {
               if (run.event !== 'push') throw new Error('Stable versioning requires main-branch push checks.');
