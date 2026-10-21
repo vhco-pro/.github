@@ -34,63 +34,18 @@ belongs in a clearly-scoped section (see the "Project-specific" part of
 ## Shared releases
 
 [.github/workflows/reusable-release.yml](.github/workflows/reusable-release.yml)
-computes a GitVersion version, pushes its exact `v`-prefixed tag, and publishes
-a GitHub Release with Conventional Commit notes rendered by a checksum-verified
-`git-cliff`. It never creates or moves major/minor alias tags. A retry can finish
-publishing when a previous run already pushed the tag.
-
-Existing release descriptions are preserved on reruns. New notes emphasize
-consumer changes, breaking changes, and dependency updates rather than routine
-README/test/CI edits; the comparison link retains access to the full history.
-
-This repository is public, so callers outside `vhco-pro`, including repositories
-owned by `michielvha`, can use it. The job operates on the caller repository using
-the caller's `GITHUB_TOKEN`; no personal access token or `secrets: inherit` is
-needed. Both the caller and the reusable job must grant `contents: write`.
-The caller's Actions policy must allow this repository and its public dependencies.
-
-```yaml
-name: Release
-on:
-  push:
-    branches: [main]
-permissions: {}
-concurrency:
-  group: release
-  cancel-in-progress: false
-jobs:
-  release:
-    permissions:
-      contents: write
-    uses: vhco-pro/.github/.github/workflows/reusable-release.yml@FULL_COMMIT_SHA
-    with:
-      workflow-ref: FULL_COMMIT_SHA
-```
-
-Use an immutable commit SHA in production, as with the other shared workflows.
-  Replace both `FULL_COMMIT_SHA` placeholders with the same verified full commit
-  SHA. The required `workflow-ref` checks out the helper scripts and config from
-  that revision; the default checkout is the caller, not this repository. Helper
-  source is moved to the runner's temporary directory before use. A placeholder
-  or moving branch is not a valid `workflow-ref`.
-
-  Release logic lives in [scripts/release/](scripts/release/) and note configuration
-  in [release/cliff.toml](release/cliff.toml). Run `bash tests/test-release.sh` and
-  shellcheck on those scripts to verify behavior without publishing. Repository
-  instructions and the central conventions start in [AGENTS.md](AGENTS.md).
-
-  Optional inputs are `runs-on` (a Linux runner, default `ubuntu-latest`) and
-`dry-run` (boolean, default `false`). A dry run still computes the version and
-renders prospective notes in the job summary, but creates no tag or release.
-Workflow outputs are `version`, `tag`, `tagged`, and `release-url`.
+is deprecated. Use
+[vhco-pro/gh-release-workflow](https://github.com/vhco-pro/gh-release-workflow)
+and copy its example. This repository releases itself with it. Refs that already
+pin `reusable-release.yml` keep working; it is removed in the next major release.
 
 ### Releasing this repository
 
-[.github/workflows/release.yml](.github/workflows/release.yml) calls this repo's
-own reusable release workflow at the same commit. Script checks run first.
-Relevant changes pushed to `main` publish an exact GitVersion tag and GitHub
-Release; PRs preview the same flow without publication. Manual runs default to
-dry-run. No separate patch counter or moving major/minor tagger is used.
+[.github/workflows/release.yml](.github/workflows/release.yml) runs the script
+and Go tests, then calls `gh-release-workflow`. Relevant changes pushed to `main`
+publish an exact GitVersion tag and GitHub Release; PRs preview the same flow
+without publication. Manual runs default to dry-run. Repository instructions and
+the central conventions start in [AGENTS.md](AGENTS.md).
 
 ## Go delivery pilot
 
