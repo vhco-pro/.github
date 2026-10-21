@@ -33,16 +33,14 @@ belongs in a clearly-scoped section (see the "Project-specific" part of
 
 ## Shared releases
 
-[.github/workflows/reusable-release.yml](.github/workflows/reusable-release.yml)
-is deprecated. Use
-[vhco-pro/gh-release-workflow](https://github.com/vhco-pro/gh-release-workflow)
-and copy its example. This repository releases itself with it. Refs that already
-pin `reusable-release.yml` keep working; it is removed in the next major release.
+Tags and GitHub Releases come from
+[vhco-pro/gh-release-workflow](https://github.com/vhco-pro/gh-release-workflow);
+copy its example. It replaces this repository's former `reusable-release.yml`.
 
 ### Releasing this repository
 
-[.github/workflows/release.yml](.github/workflows/release.yml) runs the script
-and Go tests, then calls `gh-release-workflow`. Relevant changes pushed to `main`
+[.github/workflows/release.yml](.github/workflows/release.yml) runs the Go
+tests, then calls `gh-release-workflow`. Relevant changes pushed to `main`
 publish an exact GitVersion tag and GitHub Release; PRs preview the same flow
 without publication. Manual runs default to dry-run. Repository instructions and
 the central conventions start in [AGENTS.md](AGENTS.md).
