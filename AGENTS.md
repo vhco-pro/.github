@@ -9,11 +9,8 @@ sources or conflicts rather than guessing.
 
 ## Shared release checks
 
-Run `shellcheck scripts/release/*.sh tests/*.sh`, `bash tests/test-release.sh`,
-`go test -count=1 ./...`, and
-`actionlint .github/workflows/reusable-release.yml .github/workflows/reusable-go-release.yml .github/workflows/release.yml`.
-The tests download and verify the pinned git-cliff and use disposable Git repos
-and a mocked GitHub CLI; they do not publish a release.
+Run `go test -count=1 ./...` and
+`actionlint .github/workflows/reusable-go-release.yml .github/workflows/release.yml`.
 The Go workflow contracts use `go.yaml.in/yaml/v3`; no JavaScript test runtime
 is required.
 

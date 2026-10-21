@@ -6,8 +6,6 @@ on:
     paths:
       - .github/workflows/reusable-*.yml
       - .github/workflows/release.yml
-      - scripts/release/**
-      - release/**
       - tests/**
       - go.mod
       - go.sum
@@ -15,8 +13,6 @@ on:
     paths:
       - .github/workflows/reusable-*.yml
       - .github/workflows/release.yml
-      - scripts/release/**
-      - release/**
       - tests/**
       - go.mod
       - go.sum
@@ -40,8 +36,6 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - run: shellcheck scripts/release/*.sh tests/*.sh
-      - run: bash tests/test-release.sh
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: go.mod
@@ -51,7 +45,6 @@ jobs:
     if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
     permissions:
       contents: write
-    uses: ./.github/workflows/reusable-release.yml
+    uses: vhco-pro/gh-release-workflow/.github/workflows/gh-release.yml@71187ceb6e9ebdbbee78cb0799f3a28fc0179efc # v0.1.0
     with:
-      workflow-ref: ${{ github.sha }}
       dry-run: ${{ github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && inputs.dry-run) }}
