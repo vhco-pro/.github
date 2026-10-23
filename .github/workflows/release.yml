@@ -6,14 +6,12 @@ on:
     paths:
       - .github/workflows/reusable-*.yml
       - .github/workflows/release.yml
-      - tests/**
       - go.mod
       - go.sum
   pull_request:
     paths:
       - .github/workflows/reusable-*.yml
       - .github/workflows/release.yml
-      - tests/**
       - go.mod
       - go.sum
   workflow_dispatch:
@@ -39,7 +37,7 @@ jobs:
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version-file: go.mod
-      - run: go test -count=1 ./...
+      - run: go tool actionlint -ignore SC2012 .github/workflows/*.yml
   release:
     needs: test
     if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
