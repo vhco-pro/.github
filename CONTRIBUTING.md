@@ -9,7 +9,7 @@ the one genuinely unusual thing about this org.
 
 ## Two kinds of repository
 
-### 1. Standard repositories — pull requests welcome
+### 1. Repositories that accept pull requests
 
 Most repositories in this org are developed in the open, in place, and
 accept pull requests in the normal way: fork, branch, PR. This includes
@@ -27,33 +27,14 @@ The workflow is:
 3. Make the change, with tests, and make sure the repository's CI passes.
 4. Open a pull request using the PR template.
 
-### 2. Stackweaver distribution mirrors — no pull requests
+### 2. Stackweaver distribution mirrors
 
-Stackweaver itself is developed in a **private monorepo**
-(`michielvha/stackweaver`) and published to **seven public satellite
-repositories** in this org: `stackweaver-api`, `stackweaver-frontend`,
-`stackweaver-orchestrator`, `stackweaver-zitadel-init`,
-`stackweaver-opentofu-runner`, `stackweaver-ansible-runner`, and
-`stackweaver-helm`.
-
-These satellites are one-way distribution mirrors. Their content is a
-deterministic re-publication of a reviewed monorepo commit, signed by the
-`stackweaver-release-bot` GitHub App. This means:
-
-- **You cannot send a PR to a satellite repo.** Any push to a satellite
-  is overwritten by the next monorepo sync. The sync bot is the only
-  writer; no human holds push rights to satellite `main`.
-- **All Stackweaver source changes happen in the monorepo.** Maintainers
-  triage satellite-side issues and port accepted changes upstream.
-
-What you *can* do on a satellite: file issues, report vulnerabilities via
-Private Vulnerability Reporting, open Discussions, and suggest
-documentation improvements. Those are all valuable and all get routed
-upstream.
-
-Note that `stackweaver-operator` and `terraform-provider-stackweaver` are
-part of the Stackweaver ecosystem but are **not** mirrors — they are
-developed in place and take pull requests like any standard repository.
+For a Stackweaver distribution mirror, report the problem in the affected public
+repository. Maintainers route changes to the source repository. Use the
+repository's Discussions tab for questions where available and the
+[Stackweaver security policy](https://github.com/vhco-pro/stackweaver-frontend/security/policy)
+for vulnerabilities. Stackweaver Operator and the Terraform provider are
+developed in their own repositories, where you can open pull requests.
 
 ## Code of Conduct
 
@@ -76,12 +57,12 @@ ported upstream from satellite issues:
   Several repositories derive their release version from commit
   messages, so this is load-bearing, not cosmetic.
 - **No copyrighted material** you do not have the right to contribute.
-- **No secrets.** Secret scanning is enforced.
+- **No secrets.** Keep credentials and private data out of your contribution.
 
 ## Licensing
 
-Licences differ per repository — check the `LICENSE` file in the one you
-are contributing to. By opening a pull request you agree to license your
+Check the `LICENSE` file in the repository you are contributing to. By opening
+a pull request you agree to license your
 contribution under that repository's licence.
 
 For Stackweaver specifically: contributions to the BSL-licensed
