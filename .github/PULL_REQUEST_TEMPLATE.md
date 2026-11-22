@@ -1,18 +1,9 @@
 <!--
-Thanks for opening a pull request against a vhco-pro repository.
-
-ONE EXCEPTION — Stackweaver distribution mirrors.
-The seven `stackweaver-*` repositories (api, frontend, orchestrator,
-zitadel-init, runner, ansible-runner, helm) are one-way distribution
-mirrors of a private monorepo. They do NOT accept human pull requests;
-any PR opened there will be closed and any push would be overwritten by
-the next sync. Open an issue there instead and a maintainer will port
-the change upstream. See:
-https://github.com/vhco-pro/.github/blob/main/CONTRIBUTING.md
-
-Every other repository in this org welcomes pull requests. Please fill
-in the sections below and delete this comment.
+Check the repository's contributing guide before opening a pull request.
+For a Stackweaver distribution mirror, open an issue in the affected public
+repository so maintainers can route the change to the source repository.
 -->
+
 
 ## What and why
 

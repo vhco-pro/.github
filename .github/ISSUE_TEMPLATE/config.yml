@@ -1,11 +1,11 @@
 blank_issues_enabled: false
 contact_links:
-  - name: Security vulnerability
-    url: https://github.com/vhco-pro/.github/blob/main/SECURITY.md
-    about: Do NOT file public issues for security vulnerabilities. Use GitHub Private Vulnerability Reporting on this repository, or email contact@vhco.pro.
-  - name: Question, idea, or "how do I…"
-    url: https://github.com/vhco-pro/.github/blob/main/SUPPORT.md
-    about: Where to ask questions and open design discussions for this project.
-  - name: Contributing guide
-    url: https://github.com/vhco-pro/.github/blob/main/CONTRIBUTING.md
-    about: How contributions flow into vhco-pro projects, including which repositories accept pull requests.
+- name: Report a security vulnerability
+  url: https://github.com/vhco-pro/.github/blob/main/SECURITY.md
+  about: Find the private reporting route for the affected repository.
+- name: Get help
+  url: https://github.com/vhco-pro/.github/blob/main/SUPPORT.md
+  about: Find documentation and support for the project.
+- name: Contributing guide
+  url: https://github.com/vhco-pro/.github/blob/main/CONTRIBUTING.md
+  about: Check where to propose a change.

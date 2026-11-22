@@ -13,3 +13,9 @@ Run `go tool actionlint -ignore SC2012 .github/workflows/*.yml`. The SC2012
 note in `reusable-codeql-swift.yml` predates the check.
 
 Do not merge or release without explicit authorization.
+
+## Repository security settings
+
+Use the [maintenance settings](.vh-adlc/maintenance.yaml) for the VHCO reporting
+inventory. The list defines the repositories in scope. Keep check mode until
+the owner separately authorizes enabling private vulnerability reporting.

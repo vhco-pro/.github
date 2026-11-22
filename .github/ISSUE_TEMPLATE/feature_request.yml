@@ -1,14 +1,13 @@
 name: Feature request
 description: Suggest a new feature or enhancement
 title: "feat: "
-labels: ["enhancement", "triage"]
+labels: [enhancement]
 body:
   - type: markdown
     attributes:
       value: |
-        For substantial features, please open a Discussion first (where
-        this repository has them enabled) so the design can be hashed out
-        before issue tracking takes over.
+        If this repository has Discussions, you can use it to discuss a
+        substantial proposal before filing it.
 
   - type: textarea
     id: problem
@@ -35,7 +34,7 @@ body:
     id: context
     attributes:
       label: Additional context
-      description: Links, screenshots, related issues.
+      description: Share relevant public links or a synthetic example.
 
   - type: checkboxes
     id: terms
