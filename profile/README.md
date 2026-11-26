@@ -4,7 +4,7 @@
 
 # VH & Co
 
-Open-source infrastructure and IaC tooling. Makers of [Stackweaver](https://stackweaver.sh).
+Open-source tooling. Makers of [Stackweaver](https://stackweaver.sh).
 
 [![Website](https://img.shields.io/badge/website-vhco.pro-06b6d4)](https://vhco.pro)
 [![Docs](https://img.shields.io/badge/docs-stackweaver.sh-3b82f6)](https://stackweaver.sh/docs)
