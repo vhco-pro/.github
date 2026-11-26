@@ -52,6 +52,12 @@ on:
         type: string
         default: security-extended
 
+permissions: {}
+
+defaults:
+  run:
+    shell: bash
+
 jobs:
   analyze:
     name: CodeQL analyze (Swift)
@@ -65,6 +71,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
 
       - name: Select the newest installed Xcode
         if: inputs.select-newest-xcode
@@ -98,13 +106,17 @@ jobs:
           queries: ${{ inputs.queries }}
 
       - name: Build (clean, unsigned — CodeQL traces the compile)
+        env:
+          CODEQL_XCODE_PROJECT: ${{ inputs.project }}
+          CODEQL_XCODE_SCHEME: ${{ inputs.scheme }}
+          CODEQL_XCODE_DERIVED_DATA: ${{ inputs.derived-data-path }}
         run: |
           set -o pipefail
           xcodebuild clean build \
-            -project "${{ inputs.project }}" \
-            -scheme "${{ inputs.scheme }}" \
+            -project "$CODEQL_XCODE_PROJECT" \
+            -scheme "$CODEQL_XCODE_SCHEME" \
             -destination 'platform=macOS' \
-            -derivedDataPath "${{ inputs.derived-data-path }}" \
+            -derivedDataPath "$CODEQL_XCODE_DERIVED_DATA" \
             -skipPackagePluginValidation \
             CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO
 
